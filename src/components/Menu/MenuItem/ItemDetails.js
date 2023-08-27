@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useCart } from '../../AddToCart/CartContext';
 
 const ItemDetails = ({ name, description, price, extras }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
@@ -18,17 +19,24 @@ const ItemDetails = ({ name, description, price, extras }) => {
         }
     };
 
+    const { addToCart } = useCart();
+
+    const handleAddToCart = () => {
+        addToCart({ name, description, price: totalPrice, extras: selectedExtras });
+    };
+
+
     return (
         <DetailsContainer>
             <h2>{name}</h2>
             <p>{description}</p>
-            
+
             <ExtrasContainer>
                 {extras.map(extra => (
                     <Extra key={extra.type}>
                         <span>{extra.type}</span>
-                        <Checkbox 
-                            type="checkbox" 
+                        <Checkbox
+                            type="checkbox"
                             value={extra.type}
                             checked={selectedExtras.includes(extra.type)}
                             onChange={() => handleExtraChange(extra.type)}
@@ -37,7 +45,7 @@ const ItemDetails = ({ name, description, price, extras }) => {
                 ))}
             </ExtrasContainer>
             <h3>£{totalPrice.toFixed(2)}</h3>
-            <AddToCart>Add To Cart</AddToCart>
+            <AddToCart onClick={handleAddToCart}>Add To Cart</AddToCart>
         </DetailsContainer>
     );
 };
@@ -73,11 +81,11 @@ const Checkbox = styled.input({
 });
 
 const AddToCart = styled.button({
-backgroundColor: '#171717',
-borderRadius: 7,
-height: 40,
-color: 'white',
-fontWeight: 'bold'
+    backgroundColor: '#171717',
+    borderRadius: 7,
+    height: 40,
+    color: 'white',
+    fontWeight: 'bold'
 })
 
 export default ItemDetails;
