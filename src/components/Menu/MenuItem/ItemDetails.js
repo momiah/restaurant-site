@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useCart } from '../../AddToCart/CartContext';
+import CartIcon from '../../AddToCart/CartIcon';
 
-const ItemDetails = ({ name, description, price, extras }) => {
+const ItemDetails = ({ name, description, price, extras, setIsCartOpen }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
+    const [cartEntry, setCartEntry] = useState(false)
+    const [quantity, setQuantity] = useState(0);
+    const { addToCart, toggleCart } = useCart();
 
     useEffect(() => {
         let extrasPrice = selectedExtras.length * 0.5; // Assuming each extra costs 0.5
@@ -19,12 +23,16 @@ const ItemDetails = ({ name, description, price, extras }) => {
         }
     };
 
-    const { addToCart } = useCart();
+
 
     const handleAddToCart = () => {
         addToCart({ name, description, price: totalPrice, extras: selectedExtras });
+        setQuantity(prevQuantity => prevQuantity + 1); // Increment the quantity
     };
 
+    const handleCartIconClick = () => {
+        toggleCart(true) // Open the cart when the cart icon is clicked
+    };
 
     return (
         <DetailsContainer>
@@ -45,7 +53,16 @@ const ItemDetails = ({ name, description, price, extras }) => {
                 ))}
             </ExtrasContainer>
             <h3>£{totalPrice.toFixed(2)}</h3>
-            <AddToCart onClick={handleAddToCart}>Add To Cart</AddToCart>
+
+            <ButtonContainer>
+                <AddToCart onClick={handleAddToCart}>Add To Cart</AddToCart>
+                <CartButtonContainer onClick={handleCartIconClick}> {/* Add onClick handler here */}
+                    <CartIcon />
+                    <QuantityDisplay>{quantity}</QuantityDisplay>
+                </CartButtonContainer>
+            </ButtonContainer>
+ 
+         
         </DetailsContainer>
     );
 };
@@ -83,9 +100,33 @@ const Checkbox = styled.input({
 const AddToCart = styled.button({
     backgroundColor: '#171717',
     borderRadius: 7,
+    width: '80%',
     height: 40,
     color: 'white',
     fontWeight: 'bold'
 })
+
+const ButtonContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const CartButtonContainer = styled.button`
+    display: flex;
+    align-items: center;
+    background-color: #171717;
+    border-radius: 7px;
+    height: 40px;
+    color: white;
+    font-weight: bold;
+    padding: 0 10px;
+    cursor: pointer;
+`;
+
+const QuantityDisplay = styled.span`
+    margin-left: 10px;
+    font-size: 1rem;
+`;
 
 export default ItemDetails;

@@ -9,7 +9,7 @@ const Menu = () => {
     <div style={container}>
       <h1>Menu Page</h1>
       {MenuConfig.map((menuItem, index) => (
-        <MenuItem  menuItem={menuItem} key={index}/>
+        <MenuItem menuItem={menuItem} key={index}/>
       ))}
     </div>
   );

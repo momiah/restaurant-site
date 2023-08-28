@@ -19,7 +19,9 @@ const MenuItemExpanded = ({ menuItem, item, onClose }) => {
                 name={item.name} 
                 description={item.description} 
                 price={item.price}
-                extras={item.extras}/>
+                extras={item.extras}
+
+                />
              </ItemContainer>
       </ContentContainer>
     );
