@@ -1,16 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-
+import CartIcon from './AddToCart/CartIcon';
 
 const Navbar = () => {
     return (
         <nav style={navbarStyle}>
-          <Link to="/" style={navbarItemStyle}>Home</Link>
-          <Link to="/about" style={navbarItemStyle}>About Us</Link>
+            <Link to="/" style={navbarItemStyle}>Home</Link>
+            <Link to="/about" style={navbarItemStyle}>About Us</Link>
+            <CartIcon size={30} isNavBar/>
         </nav>
-      );
-    
+    );
 };
 
 const navbarStyle = {
