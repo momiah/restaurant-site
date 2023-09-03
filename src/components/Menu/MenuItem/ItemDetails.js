@@ -6,28 +6,35 @@ import CartIcon from '../../AddToCart/CartIcon';
 const ItemDetails = ({ name, description, price, extras, setIsCartOpen }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
-    const [cartEntry, setCartEntry] = useState(false)
     const [quantity, setQuantity] = useState(0);
     const { addToCart, toggleCart } = useCart();
 
     useEffect(() => {
-        let extrasPrice = selectedExtras.length * 0.5; // Assuming each extra costs 0.5
+        let extrasPrice = 0;
+        selectedExtras.forEach(extraType => {
+            const extra = extras.find(e => e.type === extraType);
+            if (extra) {
+                extrasPrice += extra.price;
+            }
+        });
         setTotalPrice(price + extrasPrice);
-    }, [selectedExtras, price]);
+    }, [selectedExtras, price, extras]);
 
-    const handleExtraChange = (extra) => {
-        if (selectedExtras.includes(extra)) {
-            setSelectedExtras(prevExtras => prevExtras.filter(e => e !== extra));
+    const handleExtraChange = (extraType) => {
+        if (selectedExtras.includes(extraType)) {
+            setSelectedExtras(prevExtras => prevExtras.filter(e => e !== extraType));
         } else {
-            setSelectedExtras(prevExtras => [...prevExtras, extra]);
+            setSelectedExtras(prevExtras => [...prevExtras, extraType]);
         }
     };
 
-
-
     const handleAddToCart = () => {
-        addToCart({ name, description, price: totalPrice, extras: selectedExtras });
-        setQuantity(prevQuantity => prevQuantity + 1); // Increment the quantity
+        const selectedExtrasWithPrice = selectedExtras.map(extraType => {
+            const extra = extras.find(e => e.type === extraType);
+            return extra;
+        });
+        addToCart({ name, description, price: totalPrice, extras: selectedExtrasWithPrice });
+        setQuantity(prevQuantity => prevQuantity + 1);
     };
 
     const handleCartIconClick = () => {
