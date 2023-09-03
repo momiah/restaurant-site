@@ -2,12 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import ItemDetails from './ItemDetails';
 
-const MenuItemExpanded = ({ menuItem, item, onClose }) => {
+const MenuItemExpanded = ({ item, onClose }) => {
     const handleContentClick = (e) => {
       e.stopPropagation();
     };
-
-    console.log(menuItem, 'on expanded page')
   
 
     return (
