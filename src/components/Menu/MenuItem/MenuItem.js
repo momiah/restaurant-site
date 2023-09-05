@@ -12,6 +12,8 @@ const MenuItem = ({ menuItem }) => {
     setItemExpanded(true);
     setSelectedItem(item);
   };
+  console.log(menuItem, 'menuItem')
+
 
   const handleClose = () => {
     setItemExpanded(false);
@@ -23,12 +25,16 @@ const MenuItem = ({ menuItem }) => {
       {menuItem.items.map((items, index) => {
         return (
           <Item onClick={() => handleItemClick(items)} key={index}>
-            <h3>{items.name}</h3>
+           
             <ItemInfoContainer>
+            
               <Description>
+              <h2>{items.name}</h2>
                 <p>{items.description}</p>
+                <h4 style={{marginTop: 125}}>£{items.price}</h4>
               </Description>
-              <ItemImage />
+              <ItemImage src={items.imageUrl} />
+             
             </ItemInfoContainer>
           </Item>
         );
@@ -69,7 +75,7 @@ const Item = styled.div({
   border: '1px solid #DDDDDD',
   marginBottom: '20px',
   borderRadius: '20px',
-  padding: '0 20px 0 20px',
+  padding: '0 0 0 20px',
   cursor: 'pointer',
   transition: 'background-color 0.3s ease, transform 0.3s ease',
   '&:hover': {
@@ -81,28 +87,25 @@ const Item = styled.div({
   },
 });
 
-const ItemImage = styled.div({
+const ItemImage = styled.img({
   border: '1px solid #DDDDDD',
-  height: '150px',
-  width: '150px',
-  marginBottom: '25px',
+  height: '250px',
+  width: '265px',
+  margin: '25px',
   borderRadius: '25px',
 });
 
 const Description = styled.div({
-  border: '1px solid #DDDDDD',
   width: '500px',
   height: '150px',
-  marginBottom: '25px',
-  borderRadius: '25px',
-  paddingLeft: '10px',
+  padding: '20px 0',
   fontSize: '20px',
 });
 
 const ItemInfoContainer = styled.div({
   display: 'flex',
   flexDirection: 'row',
-  justifyContent: 'flex-start',
+  justifyContent: 'space-between',
   gap: '50px',
 });
 
