@@ -12,13 +12,13 @@ const MenuItemExpanded = ({ item, onClose }) => {
       <ContentContainer onClick={handleContentClick}>
         <CloseButton onClick={onClose}>X</CloseButton>
         <ItemContainer>
-            <ItemImage/>
+            <ItemImage src={item.imageUrl}/>
             <ItemDetails 
                 name={item.name} 
                 description={item.description} 
                 price={item.price}
                 extras={item.extras}
-
+                image={item.imageUrl}
                 />
              </ItemContainer>
       </ContentContainer>

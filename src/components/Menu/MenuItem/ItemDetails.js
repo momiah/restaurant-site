@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useCart } from '../../AddToCart/CartContext';
 import CartIcon from '../../AddToCart/CartIcon';
 
-const ItemDetails = ({ name, description, price, extras, setIsCartOpen }) => {
+const ItemDetails = ({ name, description, price, extras, imageUrl, setIsCartOpen }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
     const [quantity, setQuantity] = useState(0);
