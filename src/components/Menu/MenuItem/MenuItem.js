@@ -31,7 +31,7 @@ const MenuItem = ({ menuItem }) => {
               <Description>
               <h2>{items.name}</h2>
                 <p>{items.description}</p>
-                <h4 style={{marginTop: 125}}>£{items.price}</h4>
+                <h4>£{items.price}</h4>
               </Description>
               <ItemImage src={items.imageUrl} />
              
@@ -52,21 +52,25 @@ const MenuItem = ({ menuItem }) => {
 
 
 const MenuItemWrapper = styled.div({
-  width: '50%',
+  width: '30%',
   margin: '20px',
   border: '1px solid #DDDDDD',
   fontSize: '1.2rem',
   textAlign: 'left',
   padding: '20px',
   borderRadius: '20px',
-  backgroundColor: '#F5F5F5',
+  backgroundColor: '#FAFAFA',
   '@media (max-width: 767px)': {
-    width: '60%',
+    width: '90%',
     fontSize: '1rem',
     paddingLeft: '15px',
   },
-  '@media (min-width: 768px)': {
-    width: '40%',
+  '@media (min-width: 768px) and (max-width: 1024px)': {
+    width: '60%',
+    fontSize: '1.2rem',
+  },
+  '@media (min-width: 1025px) (max-width: 1920px)': {
+    width: '75%',
     fontSize: '1.5rem',
   }
 });
@@ -75,11 +79,12 @@ const Item = styled.div({
   border: '1px solid #DDDDDD',
   marginBottom: '20px',
   borderRadius: '20px',
+  backgroundColor: 'white',
   padding: '0 0 0 20px',
   cursor: 'pointer',
   transition: 'background-color 0.3s ease, transform 0.3s ease',
   '&:hover': {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: '#F5F5F5',
     transform: 'scale(1.01)',
   },
   '&:active': {
@@ -88,25 +93,60 @@ const Item = styled.div({
 });
 
 const ItemImage = styled.img({
-  border: '1px solid #DDDDDD',
-  height: '250px',
+  height: '220px',
   width: '265px',
   margin: '25px',
   borderRadius: '25px',
+  '@media (max-width: 767px)': {
+    height: '60px',
+    width: '90px',
+    margin: '15px',
+  },
+  '@media (min-width: 768px) and (max-width: 1024px)': {
+    height: '200px',
+    width: '215px',
+    margin: '20px',
+  }
 });
 
 const Description = styled.div({
   width: '500px',
-  height: '150px',
   padding: '20px 0',
   fontSize: '20px',
+  h4: {
+    marginTop: '125px', // Default marginTop for larger screens
+  },
+  '@media (max-width: 767px)': {
+    width: '70%',
+    fontSize: '10px',
+    padding: '10px 0',
+    h4: {
+      marginTop: '20px', // Adjusted marginTop for mobile screens
+    },
+  },
+  '@media (min-width: 768px) and (max-width: 1024px)': {
+    width: '80%',
+    fontSize: '18px',
+    h4: {
+      marginTop: '80px', // Adjusted marginTop for tablet screens
+    },
+  }
 });
+
 
 const ItemInfoContainer = styled.div({
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'space-between',
   gap: '50px',
+  '@media (max-width: 767px)': {
+
+    alignItems: 'left',
+    gap: '10px',
+  },
+  '@media (min-width: 768px) and (max-width: 1024px)': {
+    gap: '30px',
+  }
 });
 
 const ExpandedWrapper = styled.div({
@@ -121,6 +161,7 @@ const ExpandedWrapper = styled.div({
   justifyContent: 'center',
   alignItems: 'center',
 });
+
 
 
 
