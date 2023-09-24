@@ -7,52 +7,91 @@ const MenuItemExpanded = ({ item, onClose }) => {
       e.stopPropagation();
     };
   
-
     return (
       <ContentContainer onClick={handleContentClick}>
         <CloseButton onClick={onClose}>X</CloseButton>
         <ItemContainer>
-            <ItemImage src={item.imageUrl}/>
-            <ItemDetails 
-                name={item.name} 
-                description={item.description} 
-                price={item.price}
-                extras={item.extras}
-                image={item.imageUrl}
-                />
-             </ItemContainer>
+        <ItemImage src={item.imageUrl}/>
+        <ItemDetails 
+            name={item.name} 
+            description={item.description} 
+            price={item.price}
+            extras={item.extras}
+            image={item.imageUrl}
+        />
+        </ItemContainer>
       </ContentContainer>
     );
 };
 
-
-const ContentContainer = styled.div({
-    backgroundColor: 'white',
-
-    padding: '60px 20px 20px 20px',
-    borderRadius: '10px',
-    boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
-    position: 'relative',
-    width: '40%',
-    height: '500px',
-    maxHeight: '80vh',
-    overflowY: 'auto',
-});
+// ... (rest of the code remains unchanged)
 
 const ItemContainer = styled.div({
-   
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    border: '1px solid #DDDDDD',
-    height: 450,    
-})
+    alignItems: 'center',
+    height: '80%', // Changed to percentage-based value
+    '@media (max-width: 767px)': {
+        flexDirection: 'column',
+        height: 'auto', // Adjust height for mobile view
+    
+    },
+    '@media (min-width: 768px) and (max-width: 1024px)': {
+        flexDirection: 'column',
+        height: 'auto', // Adjust height for tablet view
+    },
+    '@media (min-width: 1025px) and (max-width: 1920px)': {
+        flexDirection: 'row', // Ensure layout remains horizontal
+        justifyContent: 'space-between', // Space out the content
+    },
+});
+
+const ContentContainer = styled.div({
+    backgroundColor: 'white',
+    padding: '20px 0px',
+    display: 'flex',
+    flexDirection: 'column', // Changed to column for consistent layout
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '10px',
+    position: 'relative',
+    width: '40%',
+    margin: '5% auto',
+    maxHeight: '80vh',
+    overflowY: 'auto',
+    '@media (max-width: 767px)': {
+        width: '90%',
+        padding: '20px 10px',
+    },
+    '@media (min-width: 768px) and (max-width: 1024px)': {
+        width: '75%',
+        padding: '20px 10px',
+    },
+    '@media (min-width: 1025px) and (max-width: 1920px)': {
+        width: '60%', // Adjust width to give more space
+        padding: '20px 20px',
+    },
+});
 
 const ItemImage = styled.img({
-    border: '1px solid #DDDDDD',
-    height: '100%',
-    width: '40%'
-})
+    marginRight: 10,
+    height: 'auto', // Adjust height to maintain aspect ratio
+    width: '100%', // Set width to 100% to fit container
+    maxWidth: '300px', // Limit maximum width
+    objectFit: 'contain', // Ensure image doesn't get cropped
+    '@media (max-width: 767px)': {
+        margin: '10px 0', // Add margin for mobile view
+    },
+    '@media (min-width: 768px) and (max-width: 1024px)': {
+        margin: '10px 0', // Add margin for tablet view
+    },
+    '@media (min-width: 1025px) and (max-width: 1920px)': {
+        width: '45%', // Adjust width to give more space to text content
+        maxWidth: '400px', // Increase maximum width
+        marginRight: '5%', // Add some margin for spacing
+    },
+});
 
 const CloseButton = styled.button({
     position: 'absolute',

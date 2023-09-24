@@ -373,6 +373,7 @@ export const MenuConfig = [
                 description: "Refreshing Fanta drink",
                 imageUrl: images.FantaFruitTwist,
                 price: 2.99,
+                extras: null,
             },
             {
                 name: "Pepsi Max Cherry",
@@ -380,6 +381,7 @@ export const MenuConfig = [
                 description: "Refreshing Cherry drink",
                 imageUrl: images.PepsiMaxCherry,
                 price: 2.99,
+                extras: null,
             },
             {
                 name: "Pepsi Max",
@@ -387,6 +389,7 @@ export const MenuConfig = [
                 description: "Refreshing Pepsi drink",
                 imageUrl: images.PepsiMax,
                 price: 2.99,
+                extras: null,
             }
         ],
     },
@@ -399,6 +402,7 @@ export const MenuConfig = [
                 description: "Delicious churros with Dulce de Leche",
                 imageUrl: images.TwoChurrosDulce,
                 price: 4.99,
+                extras: null,
             },
             {
                 name: "Churros",
@@ -406,6 +410,7 @@ export const MenuConfig = [
                 description: "Delicious churros",
                 imageUrl: images.TwoChurros,
                 price: 3.99,
+                extras: null,
             }
         ],
     }

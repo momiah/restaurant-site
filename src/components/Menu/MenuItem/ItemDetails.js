@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useCart } from '../../AddToCart/CartContext';
 import CartIcon from '../../AddToCart/CartIcon';
 
-const ItemDetails = ({ name, description, price, extras, imageUrl, setIsCartOpen }) => {
+const ItemDetails = ({ name, description, price, extras,  }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
     const [quantity, setQuantity] = useState(0);
@@ -45,7 +45,8 @@ const ItemDetails = ({ name, description, price, extras, imageUrl, setIsCartOpen
         <DetailsContainer>
             <h2>{name}</h2>
             <p>{description}</p>
-
+        
+            {extras && extras.length > 0 && ( // Check if extras exist and has data
             <ExtrasContainer>
                 {extras.map(extra => (
                     <Extra key={extra.type}>
@@ -59,6 +60,7 @@ const ItemDetails = ({ name, description, price, extras, imageUrl, setIsCartOpen
                     </Extra>
                 ))}
             </ExtrasContainer>
+        )}
             <h3>£{totalPrice.toFixed(2)}</h3>
 
             <ButtonContainer>
@@ -75,7 +77,7 @@ const ItemDetails = ({ name, description, price, extras, imageUrl, setIsCartOpen
 };
 
 const DetailsContainer = styled.div({
-    border: '1px solid #DDDDDD',
+
     width: '60%',
     height: '100%',
     padding: '20px',
@@ -83,6 +85,19 @@ const DetailsContainer = styled.div({
     flexDirection: 'column',
     justifyContent: 'space-between',
     boxSizing: 'border-box',
+    '@media (max-width: 767px)': {
+        width: '100%',
+        flexDirection: 'column',
+        padding: '0 20px 20px 20px'
+    },
+    '@media (min-width: 768px) and (max-width: 1024px)': {
+        width: '75%',
+        flexDirection: 'column',
+    },
+    '@media (min-width: 1025px) and (max-width: 1920px)': {
+        fontSize: '0.9rem', // Reduce font size slightly
+        width: '50%', // Adjust width to give more space
+    },
 });
 
 const ExtrasContainer = styled.div({
@@ -90,6 +105,10 @@ const ExtrasContainer = styled.div({
     justifyContent: 'center',
     flexDirection: 'column',
     gap: '10px',
+    borderTop: '1px solid #E2E2E2',
+    borderBottom: '1px solid #E2E2E2',
+    padding: '20px 0',
+    
 });
 
 const Extra = styled.div({
@@ -110,14 +129,26 @@ const AddToCart = styled.button({
     width: '80%',
     height: 40,
     color: 'white',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    '@media (max-width: 767px)': {
+        width: '77%'
+    },
+    '@media (min-width: 768px) and (max-width: 1024px)': {
+        width: '73%'
+    },
+    '@media (min-width: 1025px) and (max-width: 1920px)': {
+        width: '75%'
+    },
 })
 
-const ButtonContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-`;
+const ButtonContainer = styled.div({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  
+})
+  
+
 
 const CartButtonContainer = styled.button`
     display: flex;
