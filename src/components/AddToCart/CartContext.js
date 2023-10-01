@@ -35,16 +35,26 @@ export const CartProvider = ({ children }) => {
             )
         );
     };
-
+    
     const decreaseQuantity = (itemName, extras) => {
         setCartItems(prevItems => 
-            prevItems.map(item => 
-                item.name === itemName && item.quantity > 1 && JSON.stringify(item.extras) === JSON.stringify(extras)
-                    ? { ...item, quantity: item.quantity - 1 }
-                    : item
-            )
+            prevItems.reduce((acc, item) => {
+                if (item.name === itemName && JSON.stringify(item.extras) === JSON.stringify(extras)) {
+                    if (item.quantity > 1) {
+                        acc.push({ ...item, quantity: item.quantity - 1 });
+                    } else if (window.confirm('Do you want to remove this item from the cart?')) {
+                        // Don't push the item to 'acc', effectively removing it from the cart
+                    } else {
+                        acc.push(item); // Keep the item in the cart if the user cancels the removal
+                    }
+                } else {
+                    acc.push(item);
+                }
+                return acc;
+            }, [])
         );
     };
+    
     
 
     const toggleCart = () => {

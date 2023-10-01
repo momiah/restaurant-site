@@ -107,6 +107,7 @@ const Cart = () => {
                                             id="collection"
                                             name="orderType"
                                             value="Collection"
+                                            defaultChecked
                                             onChange={(e) => setFormData(prevData => ({ ...prevData, orderType: e.target.value }))}
                                         />
                                         <label htmlFor="collection">Collection</label>

@@ -22,7 +22,7 @@ import Sauce from './sauce.jpg'
 import SeasonedFries from './seasoned-fries.jpg'
 import TangoApple from './tango-apple.jpg'
 import TangoStrawberry from './tango-strawberry.jpg'
-import TMAdress from './tm-address.png'
+
 
 export const images = {
     BeanyCheese,
@@ -49,5 +49,5 @@ export const images = {
     SeasonedFries,
     TangoApple,
     TangoStrawberry,
-    TMAdress
+
   };
