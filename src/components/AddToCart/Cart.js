@@ -4,18 +4,30 @@ import { useCart } from './CartContext';
 import CustomerForm from './CustomerForm';
 
 const Cart = () => {
-    const { cartItems, isCartOpen, toggleCart } = useCart();
+    const { cartItems, isCartOpen, toggleCart, increaseQuantity, decreaseQuantity } = useCart();
     const [isCartExpanded, setIsCartExpanded] = useState(false);
     const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+
+    console.log(cartItems, 'cartItems here')
+    const [quantity, setQuantity] = useState()
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
-    const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+    //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+
+
+    const [total, setTotal] = useState(0);
     const [formData, setFormData] = useState({
         name: '',
         contactNumber: '',
         address: '',
         notes: '',
-        total: total
+        total: total,
+        orderType: ''
     });
+
+    useEffect(() => {
+        const newTotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        setTotal(newTotal);  // Update the total state
+    }, [cartItems]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -43,10 +55,10 @@ const Cart = () => {
             <CartContainer onClick={e => e.stopPropagation()}>
                 <CloseButton onClick={handleClose}>X</CloseButton>
                 <OrderExpand>
-                    <h2 style={{ textAlign: 'left', fontSize: '1.5rem'  }}>Your Order</h2>
+                    <h2 style={{ textAlign: 'left', fontSize: '1.5rem' }}>Your Order</h2>
                     <h5 style={{ position: 'initial' }}>{cartItems.length} Items</h5>
                     {isMobile && ( // Display toggle button only on mobile
-                        <button onClick={toggleCartItems} style={{ fontSize: '1.5rem', width: 30  }}>{isCartExpanded ? '-' : '+'}</button>
+                        <button onClick={toggleCartItems} style={{ fontSize: '1.5rem', width: 30 }}>{isCartExpanded ? '-' : '+'}</button>
                     )}
                 </OrderExpand>
                 <InnerContainer>
@@ -55,14 +67,28 @@ const Cart = () => {
                             {cartItems.length > 0 ? (
                                 cartItems.map((item, index) => (
                                     <CartItem key={index}>
-                                        <h3>{item.name}</h3>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                            <h3>{item.name}</h3>
+
+
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <QuantityButton onClick={() => decreaseQuantity(item.name, item.extras)}>-</QuantityButton>
+                                                <span style={{ padding: '10px 15px', margin: 10, fontWeight: 'bold' }}>{item.quantity}</span>  {/* Display the quantity here */}
+                                                <QuantityButton onClick={() => increaseQuantity(item.name, item.extras)}>+</QuantityButton>
+                                            </div>
+
+
+                                        </div>
+
                                         {item.extras && item.extras.map((extra, idx) => (
                                             <div style={{ flexDirection: 'row', display: 'flex', justifyContent: 'space-between', marginTop: '-20px' }}>
                                                 <p key={idx}>{extra.type} </p>
                                                 <p> £{extra.price.toFixed(2)}</p>
                                             </div>
                                         ))}
-                                        <p style={{ textAlign: "right", fontWeight: 'bold' }}>£{item.price.toFixed(2)}</p>
+                                        <p style={{ textAlign: "right", fontWeight: 'bold' }}>
+                                            £{(item.price * item.quantity).toFixed(2)}  {/* Updated subtotal */}
+                                        </p>
                                     </CartItem>
                                 ))
                             ) : (
@@ -72,16 +98,46 @@ const Cart = () => {
                     )}
                     <CheckoutInfo>
                         <CustomerDetailsContainer>
-                            <h2 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: 10, fontSize: '1.5rem'  }}>
+                            <h2 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: 15, fontSize: '1.5rem' }}>
                                 Your Details
+                                {!isMobile && (
+                                    <OrderTypeOption>
+                                        <input
+                                            type="radio"
+                                            id="collection"
+                                            name="orderType"
+                                            value="Collection"
+                                            onChange={(e) => setFormData(prevData => ({ ...prevData, orderType: e.target.value }))}
+                                        />
+                                        <label htmlFor="collection">Collection</label>
+                                        <input
+                                            type="radio"
+                                            id="delivery"
+                                            name="orderType"
+                                            value="Delivery"
+                                            onChange={(e) => setFormData(prevData => ({ ...prevData, orderType: e.target.value }))}
+                                        />
+                                        <label htmlFor="delivery">Delivery</label>
+
+                                    </OrderTypeOption>
+                                )}
                                 {isMobile && (
                                     <button onClick={() => setIsDetailsExpanded(!isDetailsExpanded)} style={{ fontSize: '1.5rem', width: 30 }}>
                                         {isDetailsExpanded ? '-' : '+'}
                                     </button>
                                 )}
                             </h2>
+                            {isMobile && (
+                                <div style={{ textAlign: 'left', marginLeft: 15, marginBottom: 15 }}>
+                                    <input type="radio" id="collection" name="orderType" value="Collection" />
+                                    <label htmlFor="collection">Collection</label>
+                                    <input type="radio" id="delivery" name="orderType" value="Delivery" />
+                                    <label htmlFor="delivery">Delivery</label>
+                                </div>
+                            )}
                             {(isMobile ? isDetailsExpanded : true) && <CustomerForm formData={formData} setFormData={setFormData} />}
                         </CustomerDetailsContainer>
+
                         <Total>Total: £{total.toFixed(2)}</Total>
                         <CheckoutButton type="submit" >Go To Checkout</CheckoutButton>
                     </CheckoutInfo>
@@ -92,6 +148,7 @@ const Cart = () => {
 };
 
 const Total = styled.h3({
+    fontSize: '25px',
     '@media (max-width: 767px)': {
         margin: '40px 10px',
         fontSize: '20px'
@@ -110,7 +167,7 @@ const OuterWrapper = styled.div({
     alignItems: 'center',
     zIndex: 9999,
     overflowY: 'scroll',
- 
+
 });
 
 const OrderExpand = styled.div({
@@ -144,6 +201,27 @@ const OrderExpand = styled.div({
 
 }
 )
+
+const OrderTypeOption = styled.div({
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '1rem', /* Adjust the font size as needed */
+    label: {
+        margin: '0 10px'
+    },
+    '@media (max-width: 767px)': {
+        marginBottom: 10
+    }
+})
+
+const QuantityButton = styled.button({
+    height: '25px',
+    width: '25px',
+    border: '1px solid black',
+    backgroundColor: '#171717',
+    color: 'white',
+    fontSize: 20
+})
 
 const CartContainer = styled.div({
     backgroundColor: 'white',
@@ -245,11 +323,9 @@ const CartDetails = styled.div({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-  
     overflowY: 'auto',
     '@media (max-width: 767px)': {
         marginBottom: '10px',
-        
     },
     '@media (min-width: 768px) and (max-width: 1024px)': {
         alignItems: 'center'
@@ -266,7 +342,7 @@ const CheckoutInfo = styled.div({
     textAlign: 'right',
     marginBottom: 30,
     justifyContent: 'flex-start', // Align content to the top
-    overflow: 'none', 
+    overflow: 'none',
     '@media (max-width: 767px)': {
         fontSize: '0.8rem',
     },
@@ -281,7 +357,6 @@ const CustomerDetailsContainer = styled.div({
     flex: 1,
     padding: '0 10px 0 0',
     marginTop: '-70px', // Adjust the top margin
-    
     borderRadius: 10,
     border: '1px solid #ccc',
     '@media (max-width: 767px)': {
@@ -304,13 +379,11 @@ const CustomerDetailsContainer = styled.div({
     },
 });
 
-
-
-
 const CheckoutButton = styled.button({
     backgroundColor: '#171717',
     borderRadius: 7,
-   
+    height: 20,
+    padding: 20,
     color: 'white',
     fontWeight: 'bold',
     '@media (max-width: 767px)': {
@@ -325,11 +398,6 @@ const CheckoutButton = styled.button({
         height: '60px', // Explicitly setting the height for screens larger than 1025px
     }
 });
-
-
-
-
-
 
 
 export default Cart;

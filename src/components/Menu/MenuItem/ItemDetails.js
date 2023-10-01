@@ -7,7 +7,7 @@ const ItemDetails = ({ name, description, price, extras,  }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
     const [quantity, setQuantity] = useState(0);
-    const { addToCart, toggleCart } = useCart();
+    const { addToCart, toggleCart, cartItems, updateQuantity, setCartItems } = useCart();
 
     useEffect(() => {
         let extrasPrice = 0;
@@ -33,9 +33,32 @@ const ItemDetails = ({ name, description, price, extras,  }) => {
             const extra = extras.find(e => e.type === extraType);
             return extra;
         });
-        addToCart({ name, description, price: totalPrice, extras: selectedExtrasWithPrice });
-        setQuantity(prevQuantity => prevQuantity + 1);
+    
+        const existingItemIndex = cartItems.findIndex(item => 
+            item.name === name && 
+            JSON.stringify(item.extras) === JSON.stringify(selectedExtrasWithPrice)
+        );
+    
+        if (existingItemIndex !== -1) {
+            // If the item with the same extras already exists in the cart, update its quantity
+            const updatedItems = [...cartItems];
+            updatedItems[existingItemIndex].quantity += 1;
+            setCartItems(updatedItems);
+        } else {
+            // If not, add it as a new item
+            addToCart({
+                name,
+                description,
+                price: totalPrice,
+                extras: selectedExtrasWithPrice,
+                quantity: 1  // Set initial quantity to 1
+            });
+        }
+    
+        setQuantity(prevQuantity => prevQuantity + 1);  // Update the quantity state
     };
+    
+    
 
     const handleCartIconClick = () => {
         toggleCart(true) // Open the cart when the cart icon is clicked
