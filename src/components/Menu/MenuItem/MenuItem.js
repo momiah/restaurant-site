@@ -52,7 +52,7 @@ const MenuItem = ({ menuItem }) => {
 
 
 const MenuItemWrapper = styled.div({
-  width: '30%',
+  width: '40%',
   margin: '20px',
   border: '1px solid #DDDDDD',
   fontSize: '1.2rem',
@@ -70,7 +70,7 @@ const MenuItemWrapper = styled.div({
     fontSize: '1.2rem',
   },
   '@media (min-width: 1025px) (max-width: 1920px)': {
-    width: '75%',
+    width: '78%',
     fontSize: '1.5rem',
   }
 });
