@@ -221,7 +221,11 @@ const QuantityButton = styled.button({
     border: '1px solid black',
     backgroundColor: '#171717',
     color: 'white',
-    fontSize: 20
+    fontSize: 20,
+    '&:active': {
+        backgroundColor: '#333',  // Darker color when the button is clicked
+        transform: 'scale(0.98)'  // Slightly scale down the button when clicked
+    }
 })
 
 const CartContainer = styled.div({
@@ -296,6 +300,10 @@ const CloseButton = styled.button({
     '@media (max-width: 767px)': {
         fontSize: '1.2rem',
     },
+    '&:active': {
+        backgroundColor: '#333',  // Darker color when the button is clicked
+        transform: 'scale(0.98)'  // Slightly scale down the button when clicked
+    }
 });
 
 const InnerContainer = styled.div({
@@ -397,6 +405,10 @@ const CheckoutButton = styled.button({
     },
     '@media (min-width: 1025px)': {
         height: '60px', // Explicitly setting the height for screens larger than 1025px
+    },
+    '&:active': {
+        backgroundColor: '#333',  // Darker color when the button is clicked
+        transform: 'scale(0.98)'  // Slightly scale down the button when clicked
     }
 });
 

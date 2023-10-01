@@ -55,7 +55,7 @@ const ItemDetails = ({ name, description, price, extras,  }) => {
             });
         }
     
-        setQuantity(prevQuantity => prevQuantity + 1);  // Update the quantity state
+        setQuantity(prevQuantity => prevQuantity + 1);  
     };
     
     
@@ -153,6 +153,7 @@ const AddToCart = styled.button({
     height: 40,
     color: 'white',
     fontWeight: 'bold',
+    transition: 'background-color 0.3s ease, transform 0.3s ease',
     '@media (max-width: 767px)': {
         width: '77%'
     },
@@ -162,7 +163,11 @@ const AddToCart = styled.button({
     '@media (min-width: 1025px) and (max-width: 1920px)': {
         width: '75%'
     },
-})
+    '&:active': {
+        backgroundColor: '#333',  // Darker color when the button is clicked
+        transform: 'scale(0.98)'  // Slightly scale down the button when clicked
+    }
+});
 
 const ButtonContainer = styled.div({
     display: 'flex',

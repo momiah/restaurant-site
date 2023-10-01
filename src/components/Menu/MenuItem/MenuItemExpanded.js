@@ -24,7 +24,7 @@ const MenuItemExpanded = ({ item, onClose }) => {
     );
 };
 
-// ... (rest of the code remains unchanged)
+
 
 const ItemContainer = styled.div({
     display: 'flex',
