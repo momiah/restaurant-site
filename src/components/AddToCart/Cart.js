@@ -7,8 +7,9 @@ const Cart = () => {
     const { cartItems, isCartOpen, toggleCart, increaseQuantity, decreaseQuantity } = useCart();
     const [isCartExpanded, setIsCartExpanded] = useState(false);
     const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    console.log(cartItems, 'cartItems here')
+    // console.log(cartItems, 'cartItems here')
     const [quantity, setQuantity] = useState()
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
     //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
@@ -21,7 +22,7 @@ const Cart = () => {
         address: '',
         notes: '',
         total: total,
-        orderType: ''
+        orderType: 'Collection'
     });
 
     useEffect(() => {
@@ -47,6 +48,44 @@ const Cart = () => {
     const toggleCartItems = () => {
         setIsCartExpanded(!isCartExpanded);
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsProcessing(true);
+
+        try {
+            // Perform API call to submit the order
+            console.log({formData, cartItems});
+            // const formdata = new FormData();
+            // formdata.append('formData', JSON.stringify(formData));
+            // formdata.append('cartItems', JSON.stringify(cartItems));
+            
+            const requestOptions = {
+                headers: {
+                    "Content-Type": "application/json",
+                    'Access-Control-Allow-Origin': 'http://localhost:3000',
+                    'Access-Control-Allow-Credentials': 'true'
+                },
+                method: 'POST',
+                body: JSON.stringify({cartItems}),
+                redirect: 'follow'
+            }
+            // const res = await fetch('http://127.0.0.1:5001/tacomonsster-a73fa/us-central1/payments/stripe-session', requestOptions);
+            const res = await fetch('https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session', requestOptions);
+            const data = await res.json();
+            console.log('data', data)
+            localStorage.setItem("session_data", JSON.stringify(data));
+            
+            if (data) {
+                // Redirect to the checkout page
+                window.location.href = data.url;
+                setIsProcessing(false);
+            }
+        } catch (error) {
+            console.error(error);
+            setIsProcessing(false);
+        }
+    }
 
     if (!isCartOpen) return null;
 
@@ -96,7 +135,7 @@ const Cart = () => {
                             )}
                         </CartDetails>
                     )}
-                    <CheckoutInfo>
+                    <CheckoutInfo onSubmit={handleSubmit}>
                         <CustomerDetailsContainer>
                             <h2 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: 15, fontSize: '1.5rem' }}>
                                 Your Details
@@ -123,7 +162,7 @@ const Cart = () => {
                                     </OrderTypeOption>
                                 )}
                                 {isMobile && (
-                                    <button onClick={() => setIsDetailsExpanded(!isDetailsExpanded)} style={{ fontSize: '1.5rem', width: 30 }}>
+                                    <button type='button' onClick={() => setIsDetailsExpanded(!isDetailsExpanded)} style={{ fontSize: '1.5rem', width: 30 }}>
                                         {isDetailsExpanded ? '-' : '+'}
                                     </button>
                                 )}
@@ -137,10 +176,11 @@ const Cart = () => {
                                 </div>
                             )}
                             {(isMobile ? isDetailsExpanded : true) && <CustomerForm formData={formData} setFormData={setFormData} />}
+                            <input style={{ display: 'none' }} type="text" name="cartItems"  id="cartItems" value={JSON.stringify(cartItems)} readOnly />
                         </CustomerDetailsContainer>
 
                         <Total>Total: £{total.toFixed(2)}</Total>
-                        <CheckoutButton type="submit" >Go To Checkout</CheckoutButton>
+                        <CheckoutButton type="submit" disabled={isProcessing}>{isProcessing ? "Processing..." : "Go To Checkout"}</CheckoutButton>
                     </CheckoutInfo>
                 </InnerContainer>
             </CartContainer>
@@ -344,7 +384,7 @@ const CartDetails = styled.div({
     },
 });
 
-const CheckoutInfo = styled.div({
+const CheckoutInfo = styled.form({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
