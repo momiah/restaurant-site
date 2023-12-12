@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useCart } from './CartContext';
 import CustomerForm from './CustomerForm';
+import { db } from '../../config/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const Cart = () => {
     const { cartItems, isCartOpen, toggleCart, increaseQuantity, decreaseQuantity } = useCart();
@@ -54,12 +56,6 @@ const Cart = () => {
         setIsProcessing(true);
 
         try {
-            // Perform API call to submit the order
-            console.log({formData, cartItems});
-            // const formdata = new FormData();
-            // formdata.append('formData', JSON.stringify(formData));
-            // formdata.append('cartItems', JSON.stringify(cartItems));
-            
             const requestOptions = {
                 headers: {
                     "Content-Type": "application/json",
@@ -70,19 +66,21 @@ const Cart = () => {
                 body: JSON.stringify({cartItems}),
                 redirect: 'follow'
             }
-            // const res = await fetch('http://127.0.0.1:5001/tacomonsster-a73fa/us-central1/payments/stripe-session', requestOptions);
             const res = await fetch('https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session', requestOptions);
             const data = await res.json();
-            console.log('data', data)
-            localStorage.setItem("session_data", JSON.stringify(data));
             
-            if (data) {
+            if (data?.id && data?.url) {
+                // Store the session data in Firestore with document id as session id
+                await setDoc(doc(db, "orders", data.id), {...formData, orderItems: cartItems, id: data.id, payment_status: "pending", total});
+
                 // Redirect to the checkout page
                 window.location.href = data.url;
-                setIsProcessing(false);
+            } else {
+                alert('Error submitting order');
             }
         } catch (error) {
             console.error(error);
+        } finally {
             setIsProcessing(false);
         }
     }
@@ -176,7 +174,6 @@ const Cart = () => {
                                 </div>
                             )}
                             {(isMobile ? isDetailsExpanded : true) && <CustomerForm formData={formData} setFormData={setFormData} />}
-                            <input style={{ display: 'none' }} type="text" name="cartItems"  id="cartItems" value={JSON.stringify(cartItems)} readOnly />
                         </CustomerDetailsContainer>
 
                         <Total>Total: £{total.toFixed(2)}</Total>

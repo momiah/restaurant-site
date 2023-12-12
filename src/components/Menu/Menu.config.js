@@ -1,5 +1,3 @@
-import {images} from "../../images"
-
 export const MenuConfig = [
     {
         category: "Tacos",
@@ -8,7 +6,7 @@ export const MenuConfig = [
                 name: "Soft Taco",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Snack sized wrap filled with protien, lettuce and cheese",
-                imageUrl: images.SoftTaco,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fsoft-taco.jpg?alt=media&token=3f177c9b-8158-4a13-8508-bdf800ccd9a7",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -36,7 +34,7 @@ export const MenuConfig = [
                 name: "Crunchy Taco",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Snack sized wrap filled with protien, lettuce and cheese",
-                imageUrl: images.CrunchyTacoBeef,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcrunchy-taco-beef.jpg?alt=media&token=26456ca4-7a2c-4da2-b182-8c8d2b9bb1c6",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -64,7 +62,7 @@ export const MenuConfig = [
                 name: "Crunchy Taco Monster",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Extra large taco with protien, lettuce and cheese",
-                imageUrl: images.CrunchyTacoBeef,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcrunchy-taco-beef.jpg?alt=media&token=26456ca4-7a2c-4da2-b182-8c8d2b9bb1c6",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -92,7 +90,7 @@ export const MenuConfig = [
                 name: "Soft Taco Monster",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Extra large soft taco with protien, lettuce and cheese",
-                imageUrl: images.SoftTaco,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fsoft-taco.jpg?alt=media&token=3f177c9b-8158-4a13-8508-bdf800ccd9a7",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -125,7 +123,7 @@ export const MenuConfig = [
                 name: "Burrito",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Full sized wrap filled with protien, lettuce and cheese",
-                imageUrl: images.Burrito,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -153,7 +151,7 @@ export const MenuConfig = [
                 name: "Burrito Monster",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Extra large burrito filled with protien, lettuce and cheese",
-                imageUrl: images.Burrito,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -181,7 +179,7 @@ export const MenuConfig = [
                 name: "Create your own burrito",
                 ingredients: 'Choose your own ingredients',
                 description: "Customize your burrito with your favorite ingredients",
-                imageUrl: images.Burrito,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -203,7 +201,7 @@ export const MenuConfig = [
                 name: "Monster Fries",
                 ingredients: 'Protien, Lettuce, Cheese',
                 description: "Fries with protien, lettuce and cheese",
-                imageUrl: images.MonsterFries,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fmonster-fries.jpg?alt=media&token=76a0ddf6-2628-4e54-8f64-e02214363724",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -231,7 +229,7 @@ export const MenuConfig = [
                 name: "Cheesy Fries",
                 ingredients: 'Fries Cheese',
                 description: "Fries with cheese",
-                imageUrl: images.CheesyFries,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcheesy-fries.jpg?alt=media&token=375abd57-98ca-43db-ab6c-531c6dd914b5",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -248,7 +246,7 @@ export const MenuConfig = [
                 name: "Seasoned Fries",
                 ingredients: 'Seasoned Fries',
                 description: "Fries with special seasoning",
-                imageUrl: images.SeasonedFries,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fseasoned-fries.jpg?alt=media&token=4a9782d8-a1cf-459a-bea1-fca1c089fcd9",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -315,7 +313,7 @@ export const MenuConfig = [
                 name: "Chicken Drizzle Griller",
                 ingredients: 'Chicken, Cheese, Drizzle Sauce',
                 description: "Grilled chicken with cheese and special drizzle sauce",
-                imageUrl: images.ChickenDrizzler,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fchicken-drizzle.jpg?alt=media&token=2cbdd773-cc3f-440d-b73a-a38f423667ca",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -332,7 +330,7 @@ export const MenuConfig = [
                 name: "Beany Cheese Griller",
                 ingredients: 'Beans, Cheese',
                 description: "Grilled beans with cheese",
-                imageUrl: images.BeanyCheese,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fbeany-cheese.jpg?alt=media&token=6ae009a0-bae5-4a27-9402-eccf7f06ea57",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -349,7 +347,7 @@ export const MenuConfig = [
                 name: "Beefy Cheese Griller",
                 ingredients: 'Beef, Cheese',
                 description: "Grilled beef with cheese",
-                imageUrl: images.BeefyCheese,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fbeefy-cheese.jpg?alt=media&token=7e87c698-4c68-4314-8d47-80ece3c505e8",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -371,7 +369,7 @@ export const MenuConfig = [
                 name: "Fanta",
                 ingredients: 'Fanta',
                 description: "Refreshing Fanta drink",
-                imageUrl: images.FantaFruitTwist,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Ffanta-fruit-twist.jpg?alt=media&token=dd822c55-74d6-4215-86d0-d735075ee4f8",
                 price: 2.99,
                 extras: null,
             },
@@ -379,7 +377,7 @@ export const MenuConfig = [
                 name: "Pepsi Max Cherry",
                 ingredients: 'Pepsi Max Cherry',
                 description: "Refreshing Cherry drink",
-                imageUrl: images.PepsiMaxCherry,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fpepsi-max-cherry.jpg?alt=media&token=fac58f45-a7e9-48a1-b7bc-c3edccafe4d5",
                 price: 2.99,
                 extras: null,
             },
@@ -387,7 +385,7 @@ export const MenuConfig = [
                 name: "Pepsi Max",
                 ingredients: 'Pepsi Max',
                 description: "Refreshing Pepsi drink",
-                imageUrl: images.PepsiMax,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fpepsi-max.jpg?alt=media&token=2961640e-d4fd-4842-9c76-0b632333e320",
                 price: 2.99,
                 extras: null,
             }
@@ -400,7 +398,7 @@ export const MenuConfig = [
                 name: "Churros with Dulce de Leche",
                 ingredients: 'Churros, Dulce de Leche',
                 description: "Delicious churros with Dulce de Leche",
-                imageUrl: images.TwoChurrosDulce,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2F2churrosdulce.jpg?alt=media&token=b471a741-1193-4968-879c-1d42116e6fa1",
                 price: 4.99,
                 extras: null,
             },
@@ -408,7 +406,7 @@ export const MenuConfig = [
                 name: "Churros",
                 ingredients: 'Churros',
                 description: "Delicious churros",
-                imageUrl: images.TwoChurros,
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2F2churros.jpg?alt=media&token=50c8f753-f475-42fb-bbde-7060ff1debf7",
                 price: 3.99,
                 extras: null,
             }
