@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useCart } from './CartContext';
 import CustomerForm from './CustomerForm';
+import { db } from '../../config/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const Cart = () => {
     const { cartItems, isCartOpen, toggleCart, increaseQuantity, decreaseQuantity } = useCart();
     const [isCartExpanded, setIsCartExpanded] = useState(false);
     const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    console.log(cartItems, 'cartItems here')
+    // console.log(cartItems, 'cartItems here')
     const [quantity, setQuantity] = useState()
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
     //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
@@ -21,7 +24,7 @@ const Cart = () => {
         address: '',
         notes: '',
         total: total,
-        orderType: ''
+        orderType: 'Collection'
     });
 
     useEffect(() => {
@@ -47,6 +50,40 @@ const Cart = () => {
     const toggleCartItems = () => {
         setIsCartExpanded(!isCartExpanded);
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsProcessing(true);
+
+        try {
+            const requestOptions = {
+                headers: {
+                    "Content-Type": "application/json",
+                    'Access-Control-Allow-Origin': 'http://localhost:3000',
+                    'Access-Control-Allow-Credentials': 'true'
+                },
+                method: 'POST',
+                body: JSON.stringify({cartItems,total}),
+                redirect: 'follow'
+            }
+            const res = await fetch('https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session', requestOptions);
+            const data = await res.json();
+            
+            if (data?.id && data?.url) {
+                // Store the session data in Firestore with document id as session id
+                await setDoc(doc(db, "orders", data.id), {...formData, orderItems: cartItems, id: data.id, payment_status: "pending", total});
+
+                // Redirect to the checkout page
+                window.location.href = data.url;
+            } else {
+                alert('Error submitting order');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsProcessing(false);
+        }
+    }
 
     if (!isCartOpen) return null;
 
@@ -96,7 +133,7 @@ const Cart = () => {
                             )}
                         </CartDetails>
                     )}
-                    <CheckoutInfo>
+                    <CheckoutInfo onSubmit={handleSubmit}>
                         <CustomerDetailsContainer>
                             <h2 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: 15, fontSize: '1.5rem' }}>
                                 Your Details
@@ -123,7 +160,7 @@ const Cart = () => {
                                     </OrderTypeOption>
                                 )}
                                 {isMobile && (
-                                    <button onClick={() => setIsDetailsExpanded(!isDetailsExpanded)} style={{ fontSize: '1.5rem', width: 30 }}>
+                                    <button type='button' onClick={() => setIsDetailsExpanded(!isDetailsExpanded)} style={{ fontSize: '1.5rem', width: 30 }}>
                                         {isDetailsExpanded ? '-' : '+'}
                                     </button>
                                 )}
@@ -140,7 +177,7 @@ const Cart = () => {
                         </CustomerDetailsContainer>
 
                         <Total>Total: £{total.toFixed(2)}</Total>
-                        <CheckoutButton type="submit" >Go To Checkout</CheckoutButton>
+                        <CheckoutButton type="submit" disabled={isProcessing}>{isProcessing ? "Processing..." : "Go To Checkout"}</CheckoutButton>
                     </CheckoutInfo>
                 </InnerContainer>
             </CartContainer>
@@ -344,7 +381,7 @@ const CartDetails = styled.div({
     },
 });
 
-const CheckoutInfo = styled.div({
+const CheckoutInfo = styled.form({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',

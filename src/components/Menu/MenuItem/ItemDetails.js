@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useCart } from '../../AddToCart/CartContext';
 import CartIcon from '../../AddToCart/CartIcon';
 
-const ItemDetails = ({ name, description, price, extras,  }) => {
+const ItemDetails = ({ name, description, price, extras, image }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
     const [quantity, setQuantity] = useState(0);
@@ -51,7 +51,8 @@ const ItemDetails = ({ name, description, price, extras,  }) => {
                 description,
                 price: totalPrice,
                 extras: selectedExtrasWithPrice,
-                quantity: 1  // Set initial quantity to 1
+                quantity: 1,  // Set initial quantity to 1
+                image,
             });
         }
     

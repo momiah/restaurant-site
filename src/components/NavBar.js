@@ -13,6 +13,9 @@ const Navbar = () => {
 };
 
 const navbarStyle = {
+    // position: 'sticky',
+    // top: 0,
+    // zIndex: 1,
     display: 'flex',
     justifyContent: 'space-around',
     backgroundColor: '#333',
