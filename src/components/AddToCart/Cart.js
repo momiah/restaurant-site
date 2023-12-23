@@ -63,7 +63,7 @@ const Cart = () => {
                     'Access-Control-Allow-Credentials': 'true'
                 },
                 method: 'POST',
-                body: JSON.stringify({cartItems}),
+                body: JSON.stringify({cartItems,total}),
                 redirect: 'follow'
             }
             const res = await fetch('https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session', requestOptions);
