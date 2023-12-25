@@ -22,6 +22,7 @@ import Sauce from './sauce.jpg'
 import SeasonedFries from './seasoned-fries.jpg'
 import TangoApple from './tango-apple.jpg'
 import TangoStrawberry from './tango-strawberry.jpg'
+import Instagram from './instagram.png'
 
 
 export const images = {
@@ -49,5 +50,5 @@ export const images = {
     SeasonedFries,
     TangoApple,
     TangoStrawberry,
-
+    Instagram
   };
