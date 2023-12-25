@@ -8,7 +8,10 @@ const Menu = () => {
   
   return (
     <div style={container}>
-      <h1>Menu Page</h1>
+      <Image
+          src={require("../../images/tacomonster.png")}
+
+        />
       {MenuConfig.map((menuItem, index) => (
         <MenuItem menuItem={menuItem} key={index}/>
       ))}
@@ -37,6 +40,11 @@ const container = {
 
 },
 }
+
+const Image = styled.img({
+  width: 150,
+  height: 150,
+});
 
 
 
