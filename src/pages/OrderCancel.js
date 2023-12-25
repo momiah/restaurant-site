@@ -45,7 +45,7 @@ const CancelContainer = styled.div({
   flexDirection: "column",
   alignItems: "center",
   "@media (max-width: 767px)": {
-    width: "90%",
+    width: "80%",
     fontSize: "1rem",
     paddingLeft: "15px",
   },
@@ -55,7 +55,6 @@ const CancelContainer = styled.div({
   },
   "@media (min-width: 1025px) and (max-width: 1920px)": {
     width: "40%",
-
     fontSize: "1.5rem",
     height: "25%",
   },
@@ -64,8 +63,9 @@ const CancelContainer = styled.div({
 const CancelIcon = styled.h1({
   "@media (max-width: 767px)": {
     width: "90%",
-    fontSize: "1rem",
-    paddingLeft: "15px",
+    fontSize: "4rem",
+    padding: 0,
+    margin: 0
   },
   "@media (min-width: 768px) and (max-width: 1024px)": {
     width: "60%",
@@ -99,7 +99,10 @@ const ImageContainer = styled.div({
   alignItems: 'center',
   justifyContent: 'center',
   width: '50%',
-
+  "@media (max-width: 767px)": {
+    flexDirection: 'column',
+    width: '70%',
+  },
 })
 
 const ImageHeader = styled.h3({
@@ -111,6 +114,10 @@ const ImageHeader = styled.h3({
 const Image = styled.img({
   width: 65,
   height: 50,
+  "@media (max-width: 767px)": {
+    width: 140,
+    height: 110
+  },
 });
 
 export default OrderSuccess;

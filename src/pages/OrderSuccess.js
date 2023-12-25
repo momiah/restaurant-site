@@ -72,10 +72,12 @@ const SuccessPage = styled.div({
   alignItems: "center",
   flexDirection: "column",
   marginTop: 50,
+
 });
 
 const SuccessContainer = styled.div({
   width: "40%",
+
   margin: "20px",
   border: "1px solid #DDDDDD",
   fontSize: "1.2rem",
@@ -87,9 +89,9 @@ const SuccessContainer = styled.div({
   flexDirection: "column",
   alignItems: "center",
   "@media (max-width: 767px)": {
-    width: "90%",
+    width: "80%",
     fontSize: "1rem",
-    paddingLeft: "15px",
+
   },
   "@media (min-width: 768px) and (max-width: 1024px)": {
     width: "60%",
@@ -106,8 +108,9 @@ const SuccessContainer = styled.div({
 const PartyHat = styled.h1({
   "@media (max-width: 767px)": {
     width: "90%",
-    fontSize: "1rem",
-    paddingLeft: "15px",
+    fontSize: "4rem",
+    padding: 0,
+    margin: 0
   },
   "@media (min-width: 768px) and (max-width: 1024px)": {
     width: "60%",
@@ -131,29 +134,47 @@ const DetailsHeading = styled.h5({
 });
 
 const OrderDetailsContainer = styled.div({
-  width: "75%",
-  height: "60%",
+  width: "95%",
+  height: "80%",
   backgroundColor: "#E4E4E4",
   borderRadius: 10,
   textAlign: "left",
   marginTop: 20,
   padding: "25px 0",
+  "@media (min-width: 1025px) and (max-width: 1920px)": {
+    fontSize: "4.5rem",
+    padding: 0,
+    margin: 0,
+    marginTop: 20,
+    height: "60%",
+    width: "75%",
+  },
 });
 
 const Details = styled.p({
-  fontSize: "1rem",
-  margin: 40,
+  fontSize: "0.75rem",
+  margin: '20px 30px',
   display: "flex",
   justifyContent: "space-between",
+  "@media (min-width: 1025px) and (max-width: 1920px)": {
+    fontSize: "4.5rem",
+
+    padding: 20,
+    margin: 0,
+    fontSize: "1rem",
+  },
 });
 
 const ImageContainer = styled.div({
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  width: '50%',
+  width: 'full',
+  "@media (min-width: 1025px) and (max-width: 1920px)": {
+    flexDirection: 'row',
 
+  }
 })
 
 const ImageHeader = styled.h3({
@@ -163,8 +184,12 @@ const ImageHeader = styled.h3({
 })
 
 const Image = styled.img({
-  width: 65,
+  width: 130,
+  height: 100,
+  "@media (min-width: 1025px) and (max-width: 1920px)": {
+   width: 65,
   height: 50,
+  }
 });
 
 export default OrderSuccess;
