@@ -14,6 +14,7 @@ app.use(cors({origin: true}));
 app.post("/stripe-session", async (req, res) => {
   const cartItems = [...req.body.cartItems];
   const total = req.body.total;
+  const orderType = req.body.orderType;
 
   const transformedItems = cartItems?.map((item) => ({
     price_data: {
@@ -36,13 +37,13 @@ app.post("/stripe-session", async (req, res) => {
   if (req.method === "POST") {
     try {
       // Create Checkout Sessions from body params.
-      const shipping_options = total < 20 ? [{shipping_rate: "shr_1OP92gIb3xo52cC3BMzs8Okv"}] : undefined;
+      const shipping_options = orderType === "Delivery" && total < 20 ? [{shipping_rate: "shr_1OP92gIb3xo52cC3BMzs8Okv"}] : [];
 
       const session = await stripe.checkout.sessions.create({
         line_items: transformedItems,
         mode: "payment",
-        success_url: `${req.headers.origin}/order-success/?session_id={CHECKOUT_SESSION_ID}&success=true`,
-        cancel_url: `${req.headers.origin}/order-cancel/?session_id={CHECKOUT_SESSION_ID}&success=false`,
+        success_url: `${req.headers.origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.origin}/order-cancel/?session_id={CHECKOUT_SESSION_ID}`,
         shipping_options,
         allow_promotion_codes: true,
       });
