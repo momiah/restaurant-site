@@ -71,7 +71,7 @@ const Cart = () => {
           "Access-Control-Allow-Credentials": "true",
         },
         method: "POST",
-        body: JSON.stringify({ cartItems, total }),
+        body: JSON.stringify({ cartItems, total, orderType: formData.orderType}),
         redirect: "follow",
       };
       const res = await fetch(
