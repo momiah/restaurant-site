@@ -20,8 +20,8 @@ const MenuItem = ({ menuItem }) => {
   };
 
   return (
-    <MenuItemWrapper>
-      <h1>{menuItem.category}</h1>
+    <MenuItemWrapper  >
+      <h1 id={menuItem.category} style={{ scrollMarginTop: "75px" }} >{menuItem.category}</h1>
       {menuItem.items.map((items, index) => {
         return (
           <Item onClick={() => handleItemClick(items)} key={index}>
@@ -52,6 +52,7 @@ const MenuItem = ({ menuItem }) => {
 
 
 const MenuItemWrapper = styled.div({
+
   width: '40%',
   margin: '20px',
   border: '1px solid #DDDDDD',
@@ -77,6 +78,7 @@ const MenuItemWrapper = styled.div({
 
 const Item = styled.div({
   border: '1px solid #DDDDDD',
+  
   marginBottom: '20px',
   borderRadius: '20px',
   backgroundColor: 'white',
