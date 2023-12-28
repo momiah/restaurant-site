@@ -5,6 +5,7 @@ import CustomerForm from "./CustomerForm";
 import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
+
 const Cart = () => {
   const {
     cartItems,
@@ -61,45 +62,57 @@ const Cart = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsProcessing(true);
 
-    try {
-      const requestOptions = {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "http://localhost:3000",
-          "Access-Control-Allow-Credentials": "true",
-        },
-        method: "POST",
-        body: JSON.stringify({ cartItems, total, orderType: formData.orderType}),
-        redirect: "follow",
-      };
-      const res = await fetch(
-        "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session",
-        requestOptions
-      );
-      const data = await res.json();
+    if(!formData.contactNumber && !formData.address){
+        console.log('Please Add Address')
+        alert("Please add address and contact number");
+    } else {
 
-      if (data?.id && data?.url) {
-        // Store the session data in Firestore with document id as session id
-        await setDoc(doc(db, "orders", data.id), {
-          ...formData,
-          orderItems: cartItems,
-          id: data.id,
-          payment_status: "pending",
-          total,
-        });
 
-        // Redirect to the checkout page
-        window.location.href = data.url;
-      } else {
-        alert("Please add items to your cart!");
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsProcessing(false);
+        setIsProcessing(true);
+
+        try {
+          const requestOptions = {
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "http://localhost:3000",
+              "Access-Control-Allow-Credentials": "true",
+            },
+            method: "POST",
+            body: JSON.stringify({ cartItems, total, orderType: formData.orderType}),
+            redirect: "follow",
+          };
+          const res = await fetch(
+            "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session",
+            requestOptions
+          );
+          const data = await res.json();
+    
+          if (data?.id && data?.url) {
+            // Store the session data in Firestore with document id as session id
+            await setDoc(doc(db, "orders", data.id), {
+              ...formData,
+              orderItems: cartItems,
+              id: data.id,
+              payment_status: "pending",
+              total,
+            });
+    
+            // Redirect to the checkout page
+            window.location.href = data.url;
+          } else {
+            alert("Please add items to your cart!");
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsProcessing(false);
+        }
+
     }
+
+    console.log('formData:', formData)
+    
   };
 
   if (!isCartOpen) return null;
