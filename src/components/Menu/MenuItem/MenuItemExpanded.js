@@ -69,8 +69,9 @@ const ContentContainer = styled.div({
         padding: '20px 10px',
     },
     '@media (min-width: 1025px) and (max-width: 1920px)': {
-        width: '60%', // Adjust width to give more space
+        width: '45%', // Adjust width to give more space
         padding: '20px 20px',
+
     },
 });
 

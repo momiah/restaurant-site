@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { MenuConfig } from "./Menu.config";
 import MenuItem from "./MenuItem/MenuItem";
 import styled from "styled-components";
-import DeliveryAvailability from "../../LocationVerifier/DeliveryAvailability";
+
 
 const Menu = () => {
 
@@ -17,7 +17,7 @@ const Menu = () => {
   return (
     <div style={container}>
       <Image src={require("../../images/tacomonster.png")} />
-      <DeliveryAvailability/>
+
       <MenuNavContainer>
       {MenuConfig.map((menuItem) => (
           <MenuNav key={menuItem.category} onClick={() => scrollToCategory(menuItem.category)}>

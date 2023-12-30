@@ -4,7 +4,11 @@ import { useCart } from "./CartContext";
 import CustomerForm from "./CustomerForm";
 import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
-
+import {
+  getUserLocation,
+  isWithin2Miles,
+} from "../../LocationVerifier/LocationVerifier";
+import Popup from "../Modals/Popup";
 
 const Cart = () => {
   const {
@@ -17,9 +21,10 @@ const Cart = () => {
   const [isCartExpanded, setIsCartExpanded] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // console.log(cartItems, 'cartItems here')
-  const [quantity, setQuantity] = useState();
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [popupTitle, setPopupTitle] = useState("");
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupIcon, setPopupIcon] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
 
@@ -60,65 +65,130 @@ const Cart = () => {
     setIsCartExpanded(!isCartExpanded);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if(!formData.contactNumber && !formData.address){
-        console.log('Please Add Address')
-        alert("Please add address and contact number");
-    } else {
-
-
-        setIsProcessing(true);
-
-        try {
-          const requestOptions = {
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "http://localhost:3000",
-              "Access-Control-Allow-Credentials": "true",
-            },
-            method: "POST",
-            body: JSON.stringify({ cartItems, total, orderType: formData.orderType}),
-            redirect: "follow",
-          };
-          const res = await fetch(
-            "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session",
-            requestOptions
-          );
-          const data = await res.json();
-    
-          if (data?.id && data?.url) {
-            // Store the session data in Firestore with document id as session id
-            await setDoc(doc(db, "orders", data.id), {
-              ...formData,
-              orderItems: cartItems,
-              id: data.id,
-              payment_status: "pending",
-              total,
-            });
-    
-            // Redirect to the checkout page
-            window.location.href = data.url;
-          } else {
-            alert("Please add items to your cart!");
-          }
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setIsProcessing(false);
-        }
-
+  const handleDeliverySubmit = async () => {
+    if (!formData.contactNumber && !formData.address) {
+      setPopup("⚠️", "No Address and Contact number", "Please add an address and Contact number");
+      return;
+    } else if (!formData.address) {
+      setPopup("📍", "No Address", "Please add an address");
+      return;
+    } else if (!formData.contactNumber) {
+      setPopup("📞", "No Contact Number", "Please add a contact number");
+      return;
     }
 
-    console.log('formData:', formData)
-    
+    setIsProcessing(true);
+  
+    try {
+      // Check if delivery is available
+      const location = await getUserLocation();
+      if (location) {
+        const { latitude, longitude } = location;
+        const within2Miles = isWithin2Miles(latitude, longitude);
+  
+        if (within2Miles) {
+          handlePaymentProcessing();
+        } else {
+          setPopup("⚠️", "Not in Delivery Location", "You are not within the delivery location, please try collection instead");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
+  
+  const handlePickupSubmit = async () => {
+    if (!formData.contactNumber) {
+      setPopup("📞", "No Contact number", "Please add Contact number");
+      return;
+    }
+
+    setIsProcessing(true);
+  
+    try {
+      handlePaymentProcessing();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  const handlePaymentProcessing = async () => {
+    setIsProcessing(true);
+  
+    try {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "http://localhost:3000",
+          "Access-Control-Allow-Credentials": "true",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          cartItems,
+          total,
+          orderType: formData.orderType,
+        }),
+        redirect: "follow",
+      };
+  
+      const res = await fetch(
+        "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session",
+        requestOptions
+      );
+  
+      const data = await res.json();
+  
+      if (data?.id && data?.url) {
+        await setDoc(doc(db, "orders", data.id), {
+          ...formData,
+          orderItems: cartItems,
+          id: data.id,
+          payment_status: "pending",
+          total,
+        });
+  
+        window.location.href = data.url;
+      } else {
+        setPopup("🛒", "Your cart is empty!", "Please add items to your cart");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  const setPopup = (icon, title, message) => {
+    setPopupIcon(icon);
+    setPopupTitle(title);
+    setPopupMessage(message);
+    setIsPopupVisible(true);
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (formData.orderType === "Delivery") {
+      handleDeliverySubmit();
+    } else {
+      handlePickupSubmit();
+    }
+  
+    console.log("formData:", formData);
+  };
+  
 
   if (!isCartOpen) return null;
 
   return (
     <OuterWrapper onClick={handleClose}>
+      {isPopupVisible && (
+        <Popup icon={popupIcon} heading={popupTitle} text={popupMessage} setIsPopupVisible={setIsPopupVisible} />
+      )}
       <CartContainer onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={handleClose}>X</CloseButton>
         <OrderExpand>

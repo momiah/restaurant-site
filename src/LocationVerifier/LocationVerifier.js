@@ -24,8 +24,8 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   // Function to check if the user is within a 2-mile radius from the restaurant
   export function isWithin2Miles(userLat, userLon) {
     // Restaurant's location
-    const restaurantLat = 51.67149343651464;
-    const restaurantLon = -0.04080637527306844;
+    const restaurantLat = 51.67133515426596;
+    const restaurantLon =  -0.04075122357137261;
   
     // Calculate the distance between the user and the restaurant
     const distance = calculateDistance(
