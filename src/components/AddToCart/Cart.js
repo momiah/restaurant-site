@@ -172,6 +172,8 @@ const Cart = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+
+
     if (formData.orderType === "Delivery") {
       handleDeliverySubmit();
     } else {
