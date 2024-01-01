@@ -1,35 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '../config/firebase';
 import styled from "styled-components";
-import images from "../images";
 import '../index.css'
 
-const OrderDetail = [
-  {
-    orderNumber: "1234455",
-    customerName: "Mohsin Miah",
-    address: "4 Lynton Gardens",
-    contactNumber: "07874392873",
-    total: 50,
-  },
-];
+// const OrderDetail = [
+//   {
+//     orderNumber: "1234455",
+//     customerName: "Mohsin Miah",
+//     address: "4 Lynton Gardens",
+//     contactNumber: "07874392873",
+//     total: 50,
+//   },
+// ];
 
-const OrderDetails = ({ data }) => {
+const OrderDetails = ({data}) => {
   return (
     <OrderDetailsContainer>
       <Details>
-        <strong>Order Number:</strong> {data.orderNumber}
+        <strong>Order Number:</strong> {(data.id && data.id.slice(-5).toUpperCase()) || "-"}
       </Details>
       <Details>
-        <strong>Customer Name:</strong> {data.customerName}
+        <strong>Customer Name:</strong> {data.name || "-"}
+      </Details>
+      {data.address && <Details>
+        <strong>Address:</strong> {data.address || "-"}
+      </Details>}
+      <Details>
+        <strong>Contact Number:</strong> {data.contactNumber || "-"}
       </Details>
       <Details>
-        <strong>Address:</strong> {data.address}
-      </Details>
-      <Details>
-        <strong>Contact Number:</strong> {data.contactNumber}
-      </Details>
-      <Details>
-        <strong>Total:</strong> {data.total}
+        <strong>Total:</strong> £{data.total}
       </Details>
       <Details>
         A full receipt has been sent to your email, please allow up to 45
@@ -41,15 +42,31 @@ const OrderDetails = ({ data }) => {
 };
 
 const OrderSuccess = () => {
+  const [data, setData] = useState({});
+  // get session_id from the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const session_id = urlParams.get("session_id");
+
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const query = await getDoc(doc(db, "orders", session_id));
+        setData(query.data());
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchOrderDetails();
+  }, [session_id])
+
   return (
     <SuccessPage>
       <SuccessContainer>
         <PartyHat>🎉</PartyHat>
         <SuccessHeading>Order Success!</SuccessHeading>
         <DetailsHeading>Here is your order details</DetailsHeading>
-        {OrderDetail.map((orderDetail) => {
-          return <OrderDetails data={orderDetail} />;
-        })}
+          <OrderDetails data={data} />
       </SuccessContainer>
       <ImageContainer>
         <ImageHeader>Follow us on instagram!</ImageHeader>

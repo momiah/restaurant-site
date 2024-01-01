@@ -77,7 +77,7 @@ const Cart = () => {
       return;
     }
 
-    setIsProcessing(true);
+    // setIsProcessing(true);
   
     try {
       // Check if delivery is available
@@ -94,7 +94,6 @@ const Cart = () => {
       }
     } catch (error) {
       console.error(error);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -105,13 +104,12 @@ const Cart = () => {
       return;
     }
 
-    setIsProcessing(true);
+    // setIsProcessing(true);
   
     try {
       handlePaymentProcessing();
     } catch (error) {
       console.error(error);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -150,15 +148,13 @@ const Cart = () => {
           payment_status: "pending",
           total,
         });
-  
+        
         window.location.href = data.url;
       } else {
         setPopup("🛒", "Your cart is empty!", "Please add items to your cart");
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsProcessing(false);
     }
   };
   
@@ -197,7 +193,7 @@ const Cart = () => {
           {isMobile && ( // Display toggle button only on mobile
             <button
               onClick={toggleCartItems}
-              style={{ fontSize: "1.5rem", width: 30 }}
+              style={{ fontSize: "1.5rem", width: 30, textAlign: 'center' }}
             >
               {isCartExpanded ? "-" : "+"}
             </button>
@@ -620,6 +616,7 @@ const CustomerDetailsContainer = styled.div({
 });
 
 const CheckoutButton = styled.button({
+  cursor: "pointer",
   backgroundColor: "#171717",
   borderRadius: 7,
   height: 20,

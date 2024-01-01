@@ -1,0 +1,31 @@
+[debug] [2024-01-01T17:18:21.068Z] ----------------------------------------------------------------------
+[debug] [2024-01-01T17:18:21.071Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\pc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2024-01-01T17:18:21.071Z] CLI Version:   13.0.1
+[debug] [2024-01-01T17:18:21.072Z] Platform:      win32
+[debug] [2024-01-01T17:18:21.072Z] Node Version:  v18.18.2
+[debug] [2024-01-01T17:18:21.073Z] Time:          Mon Jan 01 2024 22:18:21 GMT+0500 (Pakistan Standard Time)
+[debug] [2024-01-01T17:18:21.073Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-01-01T17:18:21.170Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-01-01T17:18:21.171Z] > authorizing via signed-in user (mateensoomro737@gmail.com)
+[debug] [2024-01-01T17:18:21.171Z] [iam] checking project tacomonster-a73fa for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2024-01-01T17:18:21.174Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/tacomonster-a73fa:testIamPermissions [none]
+[debug] [2024-01-01T17:18:21.174Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/tacomonster-a73fa:testIamPermissions x-goog-quota-user=projects/tacomonster-a73fa
+[debug] [2024-01-01T17:18:21.174Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/tacomonster-a73fa:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-01-01T17:18:21.237Z] *** [apiv2] error from fetch(https://cloudresourcemanager.googleapis.com/v1/projects/tacomonster-a73fa:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"cloudfunctions.functions.create\",\"cloudfunctions.functions.delete\",\"cloudfunctions.functions.get\",\"cloudfunctions.functions.list\",\"cloudfunctions.functions.update\",\"cloudfunctions.operations.get\",\"firebase.projects.get\"]}"}): FetchError: request to https://cloudresourcemanager.googleapis.com/v1/projects/tacomonster-a73fa:testIamPermissions failed, reason: getaddrinfo EAI_AGAIN cloudresourcemanager.googleapis.com
+[debug] [2024-01-01T17:18:21.237Z] [iam] error while checking permissions, command may fail: FirebaseError: Failed to make request to https://cloudresourcemanager.googleapis.com/v1/projects/tacomonster-a73fa:testIamPermissions
+[debug] [2024-01-01T17:18:21.238Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2024-01-01T17:18:21.238Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2024-01-01T17:18:21.247Z] *** [apiv2] error from fetch(https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"iam.serviceAccounts.actAs\"]}"}): FetchError: request to https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions failed, reason: getaddrinfo EAI_AGAIN iam.googleapis.com
+[debug] [2024-01-01T17:18:21.248Z] [functions] service account IAM check errored, deploy may fail: Failed to make request to https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions {"name":"FirebaseError","children":[],"exit":1,"message":"Failed to make request to https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions","original":{"message":"request to https://iam.googleapis.com/v1/projects/tacomonster-a73fa/serviceAccounts/tacomonster-a73fa@appspot.gserviceaccount.com:testIamPermissions failed, reason: getaddrinfo EAI_AGAIN iam.googleapis.com","type":"system","errno":"EAI_AGAIN","code":"EAI_AGAIN"},"status":500}
+[info] 
+[info] === Deploying to 'tacomonster-a73fa'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[debug] [2024-01-01T17:18:29.003Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\pc\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:258:49)
+    at listOnTimeout (node:internal/timers:569:17)
+    at process.processTimers (node:internal/timers:512:7)
+[error] 
+[error] Error: An unexpected error has occurred.

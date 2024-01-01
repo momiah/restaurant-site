@@ -81,7 +81,10 @@ const ItemImage = styled.img({
     width: '100%', // Set width to 100% to fit container
     maxWidth: '300px', // Limit maximum width
     objectFit: 'contain', // Ensure image doesn't get cropped
-    '@media (max-width: 767px)': {
+    '@media (max-width: 480px)': {
+        margin: '0', // Add margin for mobile view
+    },
+    '@media (min-width: 480px) and (max-width: 767px)': {
         margin: '10px 0', // Add margin for mobile view
     },
     '@media (min-width: 768px) and (max-width: 1024px)': {
