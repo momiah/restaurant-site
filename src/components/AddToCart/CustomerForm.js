@@ -49,6 +49,17 @@ const CustomerForm = ({ formData, setFormData }) => {
               required
             />
           </InputContainer>
+          <InputContainer>
+            <input
+              type="text"
+              id="postCode"
+              name="postCode"
+              placeholder="Post Code"
+              value={formData.postCode}
+              onChange={handleChange}
+              required
+            />
+          </InputContainer>
           <NotesInputContainer>
             <textarea
               id="notes"

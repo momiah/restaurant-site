@@ -33,6 +33,7 @@ const Cart = () => {
     name: "",
     contactNumber: "",
     address: "",
+    postCode: "",
     notes: "",
     total: total,
     orderType: "Collection",
@@ -72,10 +73,23 @@ const Cart = () => {
     } else if (!formData.address) {
       setPopup("📍", "No Address", "Please add an address");
       return;
-    } else if (!formData.contactNumber) {
+    } else if (!formData.contactNumber || formData.contactNumber.split('').length < 11) {
       setPopup("📞", "No Contact Number", "Please add a contact number");
       return;
     }
+
+    if (!formData.postCode || formData.postCode.split('').length < 5) {
+        setPopup("⚠️", "No Postcode or invalid post code", "Please add a valid postcode");
+        return;
+    } else if (formData.postCode) {
+        // Check if the first three characters are not in the specified list
+        const validPrefixes = ['EN1', 'EN2', 'EN3', 'EN7', 'EN8', 'EN9'];
+        if (!validPrefixes.some(prefix => formData.postCode.startsWith(prefix))) {
+          // Display the popup if the condition is not met
+          setPopup("⚠️", "Not in Delivery Location", "You are not within the delivery location, please try collection instead");
+          return;
+        }
+      }
 
     // setIsProcessing(true);
   
@@ -103,6 +117,13 @@ const Cart = () => {
       setPopup("📞", "No Contact number", "Please add Contact number");
       return;
     }
+   
+
+
+    if (formData.contactNumber.split('').length < 11) {
+        setPopup("📞", "Incorrect contact number", "Your number must be 11 digits");
+        return;
+      }
 
     // setIsProcessing(true);
   
