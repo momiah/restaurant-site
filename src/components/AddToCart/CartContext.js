@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
+
+const CART_STORAGE_KEY = 'cartItems';
 const CartContext = createContext();
 
 export const useCart = () => {
@@ -7,8 +9,25 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState(() => {
+        try {
+            const storedCartItems = JSON.parse(localStorage.getItem(CART_STORAGE_KEY));
+            return storedCartItems || [];
+        } catch (error) {
+            console.error('Error loading cart items from localStorage:', error);
+            return [];
+        }
+    });
     const [isCartOpen, setIsCartOpen] = useState(false);
+
+        // Save cart items to local storage whenever it changes
+        useEffect(() => {
+            try {
+                localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+            } catch (error) {
+                console.error('Error saving cart items to localStorage:', error);
+            }
+        }, [cartItems]);
 
     const addToCart = (item) => {
         const existingItemIndex = cartItems.findIndex(cartItem => 
