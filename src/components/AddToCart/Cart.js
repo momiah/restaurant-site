@@ -365,6 +365,7 @@ const Cart = () => {
                     name="orderType"
                     value="Collection"
                     defaultChecked
+                  
                     onChange={(e) =>
                       setFormData((prevData) => ({
                         ...prevData,
@@ -372,7 +373,7 @@ const Cart = () => {
                       }))
                     }
                   />
-                  <label htmlFor="collection">Collection</label>
+                  <label style={{marginRight: 20}} htmlFor="collection">Collection</label>
                   <input
                     type="radio"
                     id="delivery"

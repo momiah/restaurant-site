@@ -17,10 +17,10 @@ const Menu = () => {
   return (
     <div style={container}>
       <Image src={require("../../images/tacomonster.png")} />
-
       <MenuNavContainer>
       {MenuConfig.map((menuItem) => (
           <MenuNav key={menuItem.category} onClick={() => scrollToCategory(menuItem.category)}>
+             <CategoryImage src={menuItem.items[0].imageUrl} alt={menuItem.category} />
             {menuItem.category}
           </MenuNav>
         ))}
@@ -38,7 +38,6 @@ const container = {
   justifyContent: "center",
   alignItems: "center",
   padding: "20px",
-
   // Media queries
   "@media (max-width: 600px)": {
     // For mobile devices
@@ -57,7 +56,14 @@ const container = {
 
 const MenuNav = styled.a({
   display: "flex",
-  flexDirection: "row",
+  flexDirection: "column",
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: '1px solid #E4E4E4',
+  padding: 15,
+  margin: '0 10px',
+  borderRadius: 10,
+  cursor: 'pointer',
 
 });
 
@@ -65,20 +71,48 @@ const MenuNavContainer = styled.div({
   display: "flex",
   flexDirection: "row",
   justifyContent: 'space-between',
-  width: '95%',
+  width: '100%', // Allow it to take full width
   fontWeight: 'bold',
   margin: '20px 0',
+
+  // Fix the width of each MenuNav item
+  '& > *': {
+    flex: '0 0 100px',
+  },
+
+  // For mobile devices
+  "@media (max-width: 600px)": {
+    overflowX: 'auto',
+    whiteSpace: 'nowrap',
+    scrollbarWidth: 'none', // For Firefox
+    msOverflowStyle: 'none', // For Internet Explorer/Edge
+    '&::-webkit-scrollbar': {
+      display: 'none', // For Chrome, Safari, and Opera
+    },
+  },
   "@media (min-width: 1025px) and (max-width: 1920px)": {
-  
-    width: '35%',
+    width: '42.5%',
     padding: 0,
- 
+    justifyContent: 'center',
+    // '& > *': {
+    //   flex: '0 0 70px',
+    // },
   },
 });
+
+
 
 const Image = styled.img({
   width: 150,
   height: 150,
+});
+
+const CategoryImage = styled.img({
+  width: '100%', // Set to 100% to fill the container
+  height: '100%', // Set to 100% to fill the container
+  objectFit: 'contain', // Scale the image while maintaining aspect ratio
+  objectPosition: 'center', // Center the image within the container,
+  
 });
 
 export default Menu;
