@@ -2,23 +2,14 @@ import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from '../config/firebase';
 import styled from "styled-components";
+import { useCart } from "../components/AddToCart/CartContext";
 import '../index.css'
-
-// const OrderDetail = [
-//   {
-//     orderNumber: "1234455",
-//     customerName: "Mohsin Miah",
-//     address: "4 Lynton Gardens",
-//     contactNumber: "07874392873",
-//     total: 50,
-//   },
-// ];
 
 const OrderDetails = ({data}) => {
   return (
     <OrderDetailsContainer>
       <Details>
-        <strong>Order Number:</strong> {(data.id && data.id.slice(-5).toUpperCase()) || "-"}
+        <strong>Order ID:</strong> {(data.id && data.id.slice(-5).toUpperCase()) || "-"}
       </Details>
       <Details>
         <strong>Customer Name:</strong> {data.name || "-"}
@@ -43,9 +34,18 @@ const OrderDetails = ({data}) => {
 
 const OrderSuccess = () => {
   const [data, setData] = useState({});
+  const { setCartItems } = useCart();
   // get session_id from the URL
   const urlParams = new URLSearchParams(window.location.search);
   const session_id = urlParams.get("session_id");
+
+  console.log('data:', data)
+
+  useEffect(() => {
+    if(data.payment_status === 'paid'){
+      setCartItems([])
+    }
+  },[data])
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -201,10 +201,10 @@ const ImageHeader = styled.h3({
 })
 
 const Image = styled.img({
-  width: 130,
+  width: 140,
   height: 100,
   "@media (min-width: 1025px) and (max-width: 1920px)": {
-   width: 65,
+   width: 70,
   height: 50,
   }
 });
