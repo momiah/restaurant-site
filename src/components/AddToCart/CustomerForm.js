@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { images } from '../../images'
 
 const CustomerForm = ({ formData, setFormData }) => {
 
@@ -87,7 +86,9 @@ const CustomerForm = ({ formData, setFormData }) => {
           <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d4948.712907721025!2d-0.0417565!3d51.6716181!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761f49f9cd05d7%3A0xf86d6a1bdb3aa431!2sTaco%20Monster!5e0!3m2!1sen!2suk!4v1696160226658!5m2!1sen!2suk" 
            allowfullscreen="" 
            loading="lazy" 
-           referrerpolicy="no-referrer-when-downgrade">
+           referrerpolicy="no-referrer-when-downgrade"
+           title='TacoMonster location'
+           >
           </iframe>
       </MapsContainer>
 
@@ -184,73 +185,6 @@ const MapsContainer = styled.div({
     },
   }
 });
-
-const ImageContainer = styled.div({
-  flex: 1,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  overflow: 'hidden',
-  height: '300px',
-  
-  img: {
-    objectFit: 'cover',
-    width: 'auto',
-    height: '100%',
-  },
-
-
-  '@media (max-width: 1024px)': {
-
-    img: {
-      width: '100%',
-      height: '100%',
-
-    },
-  }
-});
-
-const AddressContainer = styled.div({
-  flexBasis: '50%', // Adjust this value as needed
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontWeight: 'bold',
-  textAlign: 'left',
-  padding: '10px',
-  borderRight: '1px solid #ccc', // Optional: add a border between the text and image
-  '@media (max-width: 767px)': {
-    fontSize: '0.8rem',
-  },
-  '@media (min-width: 768px) and (max-width: 1024px)': {
-    fontSize: '0.9rem',
-  },
-  p: {
-    margin: 0,
-  }
-});
-
-const CollectionContainer = styled.div({
-  display: 'flex',
-  justifyContent: 'space-between',
-  textarea: {
-    display: 'none', // Hide the textarea when it's a collection order
-  },
-  '@media (min-width: 1025px) and (max-width: 1920px)': {
-    flexDirection: 'column',
-  },
-  '@media (max-width: 767px)': {
-    height: 'auto',
-    marginTop: 25,
-    flexDirection: 'column',
-  },
-  '@media (min-width: 768px) and (max-width: 1024px)': {
-    height: 'auto',
-    flexDirection: 'column'
-  },
-});
-
 
 const NotesInputContainer = styled(InputContainer)({
   textarea: {

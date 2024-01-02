@@ -7,7 +7,7 @@ const ItemDetails = ({ name, description, price, extras, image }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
     const [quantity, setQuantity] = useState(0);
-    const { addToCart, toggleCart, cartItems, updateQuantity, setCartItems } = useCart();
+    const { addToCart, toggleCart, cartItems, setCartItems } = useCart();
 
     useEffect(() => {
         let extrasPrice = 0;

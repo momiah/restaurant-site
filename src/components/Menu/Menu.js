@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { MenuConfig } from "./Menu.config";
 import MenuItem from "./MenuItem/MenuItem";
 import styled from "styled-components";
@@ -38,6 +38,7 @@ const container = {
   justifyContent: "center",
   alignItems: "center",
   padding: "20px",
+
   // Media queries
   "@media (max-width: 600px)": {
     // For mobile devices
@@ -51,7 +52,9 @@ const container = {
     // For desktops and larger screens
     padding: "20px",
   },
-  "@media (min-width: 1025px) and (max-width: 1920px)": {},
+  "@media (min-width: 1025px) and (max-width: 1920px)": {
+    
+  },
 };
 
 const MenuNav = styled.a({

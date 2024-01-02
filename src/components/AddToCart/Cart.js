@@ -73,8 +73,11 @@ const Cart = () => {
     } else if (!formData.address) {
       setPopup("📍", "No Address", "Please add an address");
       return;
-    } else if (!formData.contactNumber || formData.contactNumber.split('').length < 11) {
+    } else if (!formData.contactNumber) {
       setPopup("📞", "No Contact Number", "Please add a contact number");
+      return;
+    } else if (formData.contactNumber.split('').length < 11) {
+      setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
       return;
     }
 
@@ -121,7 +124,7 @@ const Cart = () => {
 
 
     if (formData.contactNumber.split('').length < 11) {
-        setPopup("📞", "Incorrect contact number", "Your number must be 11 digits");
+        setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
         return;
       }
 
