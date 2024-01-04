@@ -7,7 +7,7 @@ const ItemDetails = ({ name, description, price, extras, image }) => {
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [totalPrice, setTotalPrice] = useState(price);
     const [quantity, setQuantity] = useState(0);
-    const { addToCart, toggleCart, cartItems, updateQuantity, setCartItems } = useCart();
+    const { addToCart, toggleCart, cartItems, setCartItems } = useCart();
 
     useEffect(() => {
         let extrasPrice = 0;
@@ -67,7 +67,7 @@ const ItemDetails = ({ name, description, price, extras, image }) => {
 
     return (
         <DetailsContainer>
-            <h2>{name}</h2>
+            <Title>{name}</Title>
             <p>{description}</p>
         
             {extras && extras.length > 0 && ( // Check if extras exist and has data
@@ -85,7 +85,7 @@ const ItemDetails = ({ name, description, price, extras, image }) => {
                 ))}
             </ExtrasContainer>
         )}
-            <h3>£{totalPrice.toFixed(2)}</h3>
+            <Total>£{totalPrice.toFixed(2)}</Total>
 
             <ButtonContainer>
                 <AddToCart onClick={handleAddToCart}>Add To Cart</AddToCart>
@@ -100,6 +100,25 @@ const ItemDetails = ({ name, description, price, extras, image }) => {
     );
 };
 
+const Title = styled.h2({
+    '@media (max-width: 480px)': {
+        margin: '0',
+    },
+    '@media (min-width: 480px)': {
+        margin: '15px 0',
+    },
+});
+
+const Total = styled.h3({
+    '@media (max-width: 480px)': {
+        margin: '10px 0',
+        marginBottom: "20px"
+    },
+    '@media (min-width: 480px)': {
+        margin: '15px 0',
+    },
+});
+
 const DetailsContainer = styled.div({
 
     width: '60%',
@@ -109,7 +128,12 @@ const DetailsContainer = styled.div({
     flexDirection: 'column',
     justifyContent: 'space-between',
     boxSizing: 'border-box',
-    '@media (max-width: 767px)': {
+    '@media (max-width: 480px)': {
+        width: '100%',
+        flexDirection: 'column',
+        padding: '0 10px 0 10px'
+    },
+    '@media (min-width: 480px) and (max-width: 767px)': {
         width: '100%',
         flexDirection: 'column',
         padding: '0 20px 20px 20px'
@@ -131,8 +155,12 @@ const ExtrasContainer = styled.div({
     gap: '10px',
     borderTop: '1px solid #E2E2E2',
     borderBottom: '1px solid #E2E2E2',
-    padding: '20px 0',
-    
+    '@media (max-width: 480px)': {
+        padding: '10px 0',
+    },
+    '@media (min-width: 480px)': {
+        padding: '20px 0',
+    },
 });
 
 const Extra = styled.div({

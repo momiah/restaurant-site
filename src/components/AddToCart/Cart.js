@@ -33,6 +33,7 @@ const Cart = () => {
     name: "",
     contactNumber: "",
     address: "",
+    postCode: "",
     notes: "",
     total: total,
     orderType: "Collection",
@@ -75,9 +76,25 @@ const Cart = () => {
     } else if (!formData.contactNumber) {
       setPopup("📞", "No Contact Number", "Please add a contact number");
       return;
+    } else if (formData.contactNumber.split('').length < 11) {
+      setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
+      return;
     }
 
-    setIsProcessing(true);
+    if (!formData.postCode || formData.postCode.split('').length < 5) {
+        setPopup("⚠️", "No Postcode or invalid post code", "Please add a valid postcode");
+        return;
+    } else if (formData.postCode) {
+        // Check if the first three characters are not in the specified list
+        const validPrefixes = ['EN1', 'EN2', 'EN3', 'EN7', 'EN8', 'EN9'];
+        if (!validPrefixes.some(prefix => formData.postCode.startsWith(prefix))) {
+          // Display the popup if the condition is not met
+          setPopup("⚠️", "Not in Delivery Location", "You are not within the delivery location, please try collection instead");
+          return;
+        }
+      }
+
+    // setIsProcessing(true);
   
     try {
       // Check if delivery is available
@@ -94,7 +111,6 @@ const Cart = () => {
       }
     } catch (error) {
       console.error(error);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -104,14 +120,20 @@ const Cart = () => {
       setPopup("📞", "No Contact number", "Please add Contact number");
       return;
     }
+   
 
-    setIsProcessing(true);
+
+    if (formData.contactNumber.split('').length < 11) {
+        setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
+        return;
+      }
+
+    // setIsProcessing(true);
   
     try {
       handlePaymentProcessing();
     } catch (error) {
       console.error(error);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -150,15 +172,13 @@ const Cart = () => {
           payment_status: "pending",
           total,
         });
-  
+        
         window.location.href = data.url;
       } else {
         setPopup("🛒", "Your cart is empty!", "Please add items to your cart");
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsProcessing(false);
     }
   };
   
@@ -197,7 +217,7 @@ const Cart = () => {
           {isMobile && ( // Display toggle button only on mobile
             <button
               onClick={toggleCartItems}
-              style={{ fontSize: "1.5rem", width: 30 }}
+              style={{ fontSize: "1.5rem", width: 30, textAlign: 'center' }}
             >
               {isCartExpanded ? "-" : "+"}
             </button>
@@ -348,6 +368,7 @@ const Cart = () => {
                     name="orderType"
                     value="Collection"
                     defaultChecked
+                  
                     onChange={(e) =>
                       setFormData((prevData) => ({
                         ...prevData,
@@ -355,7 +376,7 @@ const Cart = () => {
                       }))
                     }
                   />
-                  <label htmlFor="collection">Collection</label>
+                  <label style={{marginRight: 20}} htmlFor="collection">Collection</label>
                   <input
                     type="radio"
                     id="delivery"
@@ -620,6 +641,7 @@ const CustomerDetailsContainer = styled.div({
 });
 
 const CheckoutButton = styled.button({
+  cursor: "pointer",
   backgroundColor: "#171717",
   borderRadius: 7,
   height: 20,
