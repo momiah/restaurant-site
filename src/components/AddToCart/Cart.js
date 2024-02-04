@@ -9,6 +9,9 @@ import {
   isWithin2Miles,
 } from "../../LocationVerifier/LocationVerifier";
 import Popup from "../Modals/Popup";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import { FaRegPlusSquare, FaRegMinusSquare } from "react-icons/fa";
+import { CiSquareMinus, CiSquarePlus } from "react-icons/ci";
 
 const Cart = () => {
   const {
@@ -27,6 +30,8 @@ const Cart = () => {
   const [popupIcon, setPopupIcon] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+
+  console.log('protein', cartItems)
 
   const [total, setTotal] = useState(0);
   const [formData, setFormData] = useState({
@@ -210,16 +215,19 @@ const Cart = () => {
         <Popup icon={popupIcon} heading={popupTitle} text={popupMessage} setIsPopupVisible={setIsPopupVisible} />
       )}
       <CartContainer onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={handleClose}>X</CloseButton>
+      <IoMdCloseCircleOutline
+        onClick={handleClose}
+        style={{ position: "absolute", top: "10px", right: "10px",   fontSize: "2rem", color: '#949494' }}
+      />
         <OrderExpand>
           <h2 style={{ textAlign: "left", fontSize: "1.5rem" }}>Your Order</h2>
           <h5 style={{ position: "initial" }}>{cartItems.length} Items</h5>
           {isMobile && ( // Display toggle button only on mobile
             <button
               onClick={toggleCartItems}
-              style={{ fontSize: "1.5rem", width: 30, textAlign: 'center' }}
+              style={{ fontSize: "2.5rem", backgroundColor: 'transparent', border: 'none', marginTop: 10, color: '#212121'  }}
             >
-              {isCartExpanded ? "-" : "+"}
+              {isCartExpanded ? <CiSquareMinus /> : <CiSquarePlus />}
             </button>
           )}
         </OrderExpand>
@@ -238,7 +246,7 @@ const Cart = () => {
                       }}
                     >
                       <h3>{item.name}</h3>
-
+                
                       <div
                         style={{
                           display: "flex",
@@ -272,7 +280,7 @@ const Cart = () => {
                         </QuantityButton>
                       </div>
                     </div>
-
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}><b>Protein</b> <p>{item.protein.toUpperCase()}</p></div>
                     {item.extras &&
                       item.extras.map((extra, idx) => (
                         <div
@@ -348,9 +356,9 @@ const Cart = () => {
                   <button
                     type="button"
                     onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                    style={{ fontSize: "1.5rem", width: 30 }}
+                    style={{ fontSize: "2.5rem", backgroundColor: 'transparent', border: 'none', marginTop: 10, color: '#212121'  }}
                   >
-                    {isDetailsExpanded ? "-" : "+"}
+                    {isDetailsExpanded ? <CiSquareMinus />  : <CiSquarePlus />}
                   </button>
                 )}
               </h2>
