@@ -22,3 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .env
+src/images/cheesy-fries.psd
+src/images/monster-fries.psd
+src/images/*.psd
