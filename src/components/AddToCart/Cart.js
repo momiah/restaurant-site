@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useCart } from "./CartContext";
 import CustomerForm from "./CustomerForm";
 import { db } from "../../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import {
   getUserLocation,
   isWithin2Miles,
@@ -29,9 +29,20 @@ const Cart = () => {
   const [popupMessage, setPopupMessage] = useState("");
   const [popupIcon, setPopupIcon] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
-  //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+  const [dateTime, setDateTime] = useState('');
 
-  console.log("protein", cartItems);
+const timeIs = () => {
+      // Get the current date and time
+      const currentDateTime = new Date();
+  
+      // Format the date and time as a string
+      const formattedDateTime = currentDateTime.toLocaleString();
+    
+      // Update the state with the formatted date and time
+      setDateTime(formattedDateTime);
+  
+      console.log('here', dateTime)
+}
 
   const [total, setTotal] = useState(0);
   const [formData, setFormData] = useState({
@@ -65,6 +76,8 @@ const Cart = () => {
   const handleClose = (e) => {
     toggleCart(false);
     e.stopPropagation();
+    timeIs()
+    console.log('date time', dateTime)
   };
 
   const toggleCartItems = () => {
@@ -161,6 +174,14 @@ const Cart = () => {
 
   const handlePaymentProcessing = async () => {
     setIsProcessing(true);
+  
+    cartItems.forEach((cartItem) => {
+      cartItem.price = Number(cartItem.price.toFixed(2));
+    });
+  
+    const currentDateTime = new Date();
+    const formattedDateTime = currentDateTime.toLocaleString();
+  
 
     try {
       const requestOptions = {
@@ -177,14 +198,15 @@ const Cart = () => {
         }),
         redirect: "follow",
       };
-
+  
       const res = await fetch(
         "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session",
         requestOptions
       );
-
+  
       const data = await res.json();
-
+      console.log('data', data)
+  
       if (data?.id && data?.url) {
         await setDoc(doc(db, "orders", data.id), {
           ...formData,
@@ -192,16 +214,19 @@ const Cart = () => {
           id: data.id,
           payment_status: "pending",
           total,
+          createdAt: formattedDateTime,
         });
-
+  
         window.location.href = data.url;
       } else {
         setPopup("🛒", "Your cart is empty!", "Please add items to your cart");
       }
     } catch (error) {
       console.error(error);
+      console.log('error', error)
     }
   };
+  
 
   const setPopup = (icon, title, message) => {
     setPopupIcon(icon);
@@ -219,7 +244,6 @@ const Cart = () => {
       handlePickupSubmit();
     }
 
-    console.log("formData:", formData);
   };
 
   if (!isCartOpen) return null;

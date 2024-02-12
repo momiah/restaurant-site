@@ -18,7 +18,7 @@ const Menu = () => {
 
   const scrollToCategory = (category) => {
     const element = document.getElementById(category);
-    console.log('elemt', element)
+  
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }

@@ -8,11 +8,11 @@ const MenuItem = ({ menuItem }) => {
 
 
   const handleItemClick = (item) => {
-    console.log('Item clicked:', item.name);
+
     setItemExpanded(true);
     setSelectedItem(item);
   };
-  console.log(menuItem, 'menuItem')
+
 
 
   const handleClose = () => {

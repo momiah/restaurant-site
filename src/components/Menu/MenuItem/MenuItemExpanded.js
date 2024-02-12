@@ -8,7 +8,6 @@ const MenuItemExpanded = ({ item, onClose }) => {
     e.stopPropagation();
   };
 
-  console.log('proteint on the parent', item)
 
   return (
     <ContentContainer onClick={handleContentClick}>
