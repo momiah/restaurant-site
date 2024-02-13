@@ -9,6 +9,9 @@ import {
   isWithin2Miles,
 } from "../../LocationVerifier/LocationVerifier";
 import Popup from "../Modals/Popup";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import { FaRegPlusSquare, FaRegMinusSquare } from "react-icons/fa";
+import { CiSquareMinus, CiSquarePlus } from "react-icons/ci";
 
 const Cart = () => {
   const {
@@ -26,7 +29,20 @@ const Cart = () => {
   const [popupMessage, setPopupMessage] = useState("");
   const [popupIcon, setPopupIcon] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
-  //const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+  const [dateTime, setDateTime] = useState('');
+
+const timeIs = () => {
+      // Get the current date and time
+      const currentDateTime = new Date();
+  
+      // Format the date and time as a string
+      const formattedDateTime = currentDateTime.toLocaleString();
+    
+      // Update the state with the formatted date and time
+      setDateTime(formattedDateTime);
+  
+      console.log('here', dateTime)
+}
 
   const [total, setTotal] = useState(0);
   const [formData, setFormData] = useState({
@@ -60,6 +76,8 @@ const Cart = () => {
   const handleClose = (e) => {
     toggleCart(false);
     e.stopPropagation();
+    timeIs()
+    console.log('date time', dateTime)
   };
 
   const toggleCartItems = () => {
@@ -68,7 +86,11 @@ const Cart = () => {
 
   const handleDeliverySubmit = async () => {
     if (!formData.contactNumber && !formData.address) {
-      setPopup("⚠️", "No Address and Contact number", "Please add an address and Contact number");
+      setPopup(
+        "⚠️",
+        "No Address and Contact number",
+        "Please add an address and Contact number"
+      );
       return;
     } else if (!formData.address) {
       setPopup("📍", "No Address", "Please add an address");
@@ -76,37 +98,51 @@ const Cart = () => {
     } else if (!formData.contactNumber) {
       setPopup("📞", "No Contact Number", "Please add a contact number");
       return;
-    } else if (formData.contactNumber.split('').length < 11) {
+    } else if (formData.contactNumber.split("").length < 11) {
       setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
       return;
     }
 
-    if (!formData.postCode || formData.postCode.split('').length < 5) {
-        setPopup("⚠️", "No Postcode or invalid post code", "Please add a valid postcode");
-        return;
+    if (!formData.postCode || formData.postCode.split("").length < 5) {
+      setPopup(
+        "⚠️",
+        "No Postcode or invalid post code",
+        "Please add a valid postcode"
+      );
+      return;
     } else if (formData.postCode) {
-        // Check if the first three characters are not in the specified list
-        const validPrefixes = ['EN1', 'EN2', 'EN3', 'EN7', 'EN8', 'EN9'];
-        if (!validPrefixes.some(prefix => formData.postCode.startsWith(prefix))) {
-          // Display the popup if the condition is not met
-          setPopup("⚠️", "Not in Delivery Location", "You are not within the delivery location, please try collection instead");
-          return;
-        }
+      // Check if the first three characters are not in the specified list
+      const validPrefixes = ["EN1", "EN2", "EN3", "EN7", "EN8", "EN9"];
+      if (
+        !validPrefixes.some((prefix) => formData.postCode.startsWith(prefix))
+      ) {
+        // Display the popup if the condition is not met
+        setPopup(
+          "⚠️",
+          "Not in Delivery Location",
+          "You are not within the delivery location, please try collection instead"
+        );
+        return;
       }
+    }
 
     // setIsProcessing(true);
-  
+
     try {
       // Check if delivery is available
       const location = await getUserLocation();
       if (location) {
         const { latitude, longitude } = location;
         const within2Miles = isWithin2Miles(latitude, longitude);
-  
+
         if (within2Miles) {
           handlePaymentProcessing();
         } else {
-          setPopup("⚠️", "Not in Delivery Location", "You are not within the delivery location, please try collection instead");
+          setPopup(
+            "⚠️",
+            "Not in Delivery Location",
+            "You are not within the delivery location, please try collection instead"
+          );
         }
       }
     } catch (error) {
@@ -114,22 +150,20 @@ const Cart = () => {
       setIsProcessing(false);
     }
   };
-  
+
   const handlePickupSubmit = async () => {
     if (!formData.contactNumber) {
       setPopup("📞", "No Contact number", "Please add Contact number");
       return;
     }
-   
 
-
-    if (formData.contactNumber.split('').length < 11) {
-        setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
-        return;
-      }
+    if (formData.contactNumber.split("").length < 11) {
+      setPopup("📞", "Invalid contact number", "Your number must be 11 digits");
+      return;
+    }
 
     // setIsProcessing(true);
-  
+
     try {
       handlePaymentProcessing();
     } catch (error) {
@@ -137,10 +171,18 @@ const Cart = () => {
       setIsProcessing(false);
     }
   };
-  
+
   const handlePaymentProcessing = async () => {
     setIsProcessing(true);
   
+    cartItems.forEach((cartItem) => {
+      cartItem.price = Number(cartItem.price.toFixed(2));
+    });
+  
+    const currentDateTime = new Date();
+    const formattedDateTime = currentDateTime.toLocaleString();
+  
+
     try {
       const requestOptions = {
         headers: {
@@ -163,6 +205,7 @@ const Cart = () => {
       );
   
       const data = await res.json();
+      console.log('data', data)
   
       if (data?.id && data?.url) {
         await setDoc(doc(db, "orders", data.id), {
@@ -171,55 +214,76 @@ const Cart = () => {
           id: data.id,
           payment_status: "pending",
           total,
+          createdAt: formattedDateTime,
         });
-        
+  
         window.location.href = data.url;
       } else {
         setPopup("🛒", "Your cart is empty!", "Please add items to your cart");
       }
     } catch (error) {
       console.error(error);
+      console.log('error', error)
     }
   };
   
+
   const setPopup = (icon, title, message) => {
     setPopupIcon(icon);
     setPopupTitle(title);
     setPopupMessage(message);
     setIsPopupVisible(true);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (formData.orderType === "Delivery") {
       handleDeliverySubmit();
     } else {
       handlePickupSubmit();
     }
-  
-    console.log("formData:", formData);
+
   };
-  
 
   if (!isCartOpen) return null;
 
   return (
     <OuterWrapper onClick={handleClose}>
       {isPopupVisible && (
-        <Popup icon={popupIcon} heading={popupTitle} text={popupMessage} setIsPopupVisible={setIsPopupVisible} />
+        <Popup
+          icon={popupIcon}
+          heading={popupTitle}
+          text={popupMessage}
+          setIsPopupVisible={setIsPopupVisible}
+        />
       )}
       <CartContainer onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={handleClose}>X</CloseButton>
+        <IoMdCloseCircleOutline
+          onClick={handleClose}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            fontSize: "2rem",
+            color: "#949494",
+          }}
+        />
         <OrderExpand>
           <h2 style={{ textAlign: "left", fontSize: "1.5rem" }}>Your Order</h2>
           <h5 style={{ position: "initial" }}>{cartItems.length} Items</h5>
           {isMobile && ( // Display toggle button only on mobile
             <button
               onClick={toggleCartItems}
-              style={{ fontSize: "1.5rem", width: 30, textAlign: 'center' }}
+              style={{
+                fontSize: "2.5rem",
+                backgroundColor: "transparent",
+                border: "none",
+                marginTop: 10,
+                color: "#212121",
+              }}
             >
-              {isCartExpanded ? "-" : "+"}
+              {isCartExpanded ? <CiSquareMinus /> : <CiSquarePlus />}
             </button>
           )}
         </OrderExpand>
@@ -242,37 +306,44 @@ const Cart = () => {
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "center",
+                          justifyContent: "space-between",
                           alignItems: "center",
+                          
                         }}
-                      >
-                        <QuantityButton
-                          onClick={() =>
-                            decreaseQuantity(item.name, item.extras)
-                          }
-                        >
-                          -
-                        </QuantityButton>
-                        <span
-                          style={{
-                            padding: "10px 15px",
-                            margin: 10,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {item.quantity}
-                        </span>{" "}
-                        {/* Display the quantity here */}
-                        <QuantityButton
-                          onClick={() =>
-                            increaseQuantity(item.name, item.extras)
-                          }
-                        >
-                          +
-                        </QuantityButton>
+                      ><FaRegMinusSquare style={{
+                        height: "25px",
+                        width: "25px",
+                      marginRight: 10,
+                    
+                        fontSize: 20,
+                        "&:active": {
+                          backgroundColor: "#333", // Darker color when the button is clicked
+                          transform: "scale(0.98)", // Slightly scale down the button when clicked
+                        },
+                      }} onClick={() =>
+                        decreaseQuantity(item.name, item.extras)
+                      }/>
+                      <FaRegPlusSquare style={{
+                        height: "25px",
+                        width: "25px",
+               
+                        fontSize: 20,
+                        "&:active": {
+                          backgroundColor: "#333", // Darker color when the button is clicked
+                          transform: "scale(0.98)", // Slightly scale down the button when clicked
+                        },
+                      }}  onClick={() =>
+                        increaseQuantity(item.name, item.extras)
+                      }/>
                       </div>
                     </div>
-
+                    <p>
+                      {item.protein ? (
+                        <b>{item.protein.toUpperCase()}</b>
+                      ) : (
+                        <b>NO PROTEIN</b>
+                      )}
+                    </p>
                     {item.extras &&
                       item.extras.map((extra, idx) => (
                         <div
@@ -348,9 +419,15 @@ const Cart = () => {
                   <button
                     type="button"
                     onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                    style={{ fontSize: "1.5rem", width: 30 }}
+                    style={{
+                      fontSize: "2.5rem",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      marginTop: 10,
+                      color: "#212121",
+                    }}
                   >
-                    {isDetailsExpanded ? "-" : "+"}
+                    {isDetailsExpanded ? <CiSquareMinus /> : <CiSquarePlus />}
                   </button>
                 )}
               </h2>
@@ -368,7 +445,6 @@ const Cart = () => {
                     name="orderType"
                     value="Collection"
                     defaultChecked
-                  
                     onChange={(e) =>
                       setFormData((prevData) => ({
                         ...prevData,
@@ -376,7 +452,9 @@ const Cart = () => {
                       }))
                     }
                   />
-                  <label style={{marginRight: 20}} htmlFor="collection">Collection</label>
+                  <label style={{ marginRight: 20 }} htmlFor="collection">
+                    Collection
+                  </label>
                   <input
                     type="radio"
                     id="delivery"

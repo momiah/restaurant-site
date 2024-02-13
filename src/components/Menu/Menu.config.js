@@ -4,20 +4,24 @@ export const MenuConfig = [
         items: [
             {
                 name: "Soft Taco",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Snack sized wrap filled with protien, lettuce and cheese",
+                ingredients: 'protein, Lettuce, Cheese',
+                description: "Snack sized wrap filled with protein, lettuce and cheese",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fsoft-taco.jpg?alt=media&token=3f177c9b-8158-4a13-8508-bdf800ccd9a7",
                 extras: [
                     {
                         type: 'Sour Cream',
-                        price: 0.50
+                        price: 0.40
                     },
                     {
                         type: 'Crispy Onions',
-                        price: 0.50
+                        price: 0.40
+                    },
+                    {
+                        type: 'Double protein',
+                        price: 1.00
                     }
                 ],
-                protien: [
+                protein: [
                     {
                         type: 'chicken'
                     },
@@ -28,24 +32,28 @@ export const MenuConfig = [
                         type: 'spicy bean'
                     },
                 ],
-                price: 6.99,
+                price: 1.89,
             },
             {
                 name: "Crunchy Taco",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Snack sized wrap filled with protien, lettuce and cheese",
+                ingredients: 'protein, Lettuce, Cheese',
+                description: "Snack sized wrap filled with protein, lettuce and cheese",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcrunchy-taco-beef.jpg?alt=media&token=26456ca4-7a2c-4da2-b182-8c8d2b9bb1c6",
                 extras: [
                     {
                         type: 'Sour Cream',
-                        price: 0.50
+                        price: 0.40
                     },
                     {
                         type: 'Crispy Onions',
-                        price: 0.50
+                        price: 0.40
+                    },
+                    {
+                        type: 'Double protein',
+                        price: 1.00
                     }
                 ],
-                protien: [
+                protein: [
                     {
                         type: 'chicken'
                     },
@@ -56,64 +64,64 @@ export const MenuConfig = [
                         type: 'spicy bean'
                     },
                 ],
-                price: 6.99,
+                price: 1.89,
             },
-            {
-                name: "Crunchy Taco Monster",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Extra large taco with protien, lettuce and cheese",
-                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcrunchy-taco-beef.jpg?alt=media&token=26456ca4-7a2c-4da2-b182-8c8d2b9bb1c6",
-                extras: [
-                    {
-                        type: 'Sour Cream',
-                        price: 0.50
-                    },
-                    {
-                        type: 'Crispy Onions',
-                        price: 0.50
-                    }
-                ],
-                protien: [
-                    {
-                        type: 'chicken'
-                    },
-                    {
-                        type: 'beef'
-                    },
-                    {
-                        type: 'spicy bean'
-                    },
-                ],
-                price: 7.99,
-            },
-            {
-                name: "Soft Taco Monster",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Extra large soft taco with protien, lettuce and cheese",
-                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fsoft-taco.jpg?alt=media&token=3f177c9b-8158-4a13-8508-bdf800ccd9a7",
-                extras: [
-                    {
-                        type: 'Sour Cream',
-                        price: 0.50
-                    },
-                    {
-                        type: 'Crispy Onions',
-                        price: 0.50
-                    }
-                ],
-                protien: [
-                    {
-                        type: 'chicken'
-                    },
-                    {
-                        type: 'beef'
-                    },
-                    {
-                        type: 'spicy bean'
-                    },
-                ],
-                price: 7.99,
-            }
+            // {
+            //     name: "Crunchy Taco Monster",
+            //     ingredients: 'protein, Lettuce, Cheese',
+            //     description: "Extra large taco with protein, lettuce and cheese",
+            //     imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcrunchy-taco-beef.jpg?alt=media&token=26456ca4-7a2c-4da2-b182-8c8d2b9bb1c6",
+            //     extras: [
+            //         {
+            //             type: 'Sour Cream',
+            //             price: 0.50
+            //         },
+            //         {
+            //             type: 'Crispy Onions',
+            //             price: 0.50
+            //         }
+            //     ],
+            //     protein: [
+            //         {
+            //             type: 'chicken'
+            //         },
+            //         {
+            //             type: 'beef'
+            //         },
+            //         {
+            //             type: 'spicy bean'
+            //         },
+            //     ],
+            //     price: 7.99,
+            // },
+            // {
+            //     name: "Soft Taco Monster",
+            //     ingredients: 'protein, Lettuce, Cheese',
+            //     description: "Extra large soft taco with protein, lettuce and cheese",
+            //     imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fsoft-taco.jpg?alt=media&token=3f177c9b-8158-4a13-8508-bdf800ccd9a7",
+            //     extras: [
+            //         {
+            //             type: 'Sour Cream',
+            //             price: 0.50
+            //         },
+            //         {
+            //             type: 'Crispy Onions',
+            //             price: 0.50
+            //         }
+            //     ],
+            //     protein: [
+            //         {
+            //             type: 'chicken'
+            //         },
+            //         {
+            //             type: 'beef'
+            //         },
+            //         {
+            //             type: 'spicy bean'
+            //         },
+            //     ],
+            //     price: 7.99,
+            // }
         ],
     },
     {
@@ -121,8 +129,8 @@ export const MenuConfig = [
         items: [
             {
                 name: "Burrito",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Full sized wrap filled with protien, lettuce and cheese",
+                ingredients: 'protein, Lettuce, Cheese',
+                description: "Full sized wrap filled with protein, lettuce and cheese",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
@@ -132,9 +140,13 @@ export const MenuConfig = [
                     {
                         type: 'Crispy Onions',
                         price: 0.50
+                    },
+                    {
+                        type: 'Double protein',
+                        price: 1.00
                     }
                 ],
-                protien: [
+                protein: [
                     {
                         type: 'chicken'
                     },
@@ -149,8 +161,8 @@ export const MenuConfig = [
             },
             {
                 name: "Burrito Monster",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Extra large burrito filled with protien, lettuce and cheese",
+                ingredients: 'protein, Lettuce, Cheese',
+                description: "Extra large burrito filled with protein, lettuce and cheese",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
@@ -162,7 +174,7 @@ export const MenuConfig = [
                         price: 0.50
                     }
                 ],
-                protien: [
+                protein: [
                     {
                         type: 'chicken'
                     },
@@ -199,9 +211,9 @@ export const MenuConfig = [
         items: [
             {
                 name: "Monster Fries",
-                ingredients: 'Protien, Lettuce, Cheese',
-                description: "Fries with protien, lettuce and cheese",
-                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fmonster-fries.jpg?alt=media&token=76a0ddf6-2628-4e54-8f64-e02214363724",
+                ingredients: 'protein, Lettuce, Cheese',
+                description: "Fries with protein, lettuce and cheese",
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fmonster-fries-white-bg.jpg?alt=media&token=cf181244-877c-4a6c-b8c2-9ccb1e5cd10c",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -212,7 +224,7 @@ export const MenuConfig = [
                         price: 0.50
                     }
                 ],
-                protien: [
+                protein: [
                     {
                         type: 'chicken'
                     },
@@ -229,7 +241,7 @@ export const MenuConfig = [
                 name: "Cheesy Fries",
                 ingredients: 'Fries Cheese',
                 description: "Fries with cheese",
-                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcheesy-fries.jpg?alt=media&token=375abd57-98ca-43db-ab6c-531c6dd914b5",
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcheesy-fries-white-bg.jpg?alt=media&token=f0e37da4-2c07-48fc-bf88-7757e7270ea3",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -246,7 +258,7 @@ export const MenuConfig = [
                 name: "Seasoned Fries",
                 ingredients: 'Seasoned Fries',
                 description: "Fries with special seasoning",
-                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fseasoned-fries.jpg?alt=media&token=4a9782d8-a1cf-459a-bea1-fca1c089fcd9",
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fseasoned-fries-white-bg.jpg?alt=media&token=dc819015-7967-46b5-8bca-242012e54793",
                 extras: [
                     {
                         type: 'Sour Cream',
@@ -261,8 +273,8 @@ export const MenuConfig = [
             },
             // {
             //     name: "Nacho Monster",
-            //     ingredients: 'Nacho Chips, Protien, Lettuce, Cheese',
-            //     description: "Nacho chips with protien, lettuce and cheese",
+            //     ingredients: 'Nacho Chips, protein, Lettuce, Cheese',
+            //     description: "Nacho chips with protein, lettuce and cheese",
             //     imageUrl: "11062b_4074ac690fe04eef94fa7abfff3e0a51~mv2.jpg",
             //     extras: [
             //         {
@@ -274,7 +286,7 @@ export const MenuConfig = [
             //             price: 0.50
             //         }
             //     ],
-            //     protien: [
+            //     protein: [
             //         {
             //             type: 'chicken'
             //         },

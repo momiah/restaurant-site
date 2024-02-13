@@ -8,11 +8,11 @@ const MenuItem = ({ menuItem }) => {
 
 
   const handleItemClick = (item) => {
-    console.log('Item clicked:', item.name);
+
     setItemExpanded(true);
     setSelectedItem(item);
   };
-  console.log(menuItem, 'menuItem')
+
 
 
   const handleClose = () => {
@@ -21,7 +21,7 @@ const MenuItem = ({ menuItem }) => {
 
   return (
     <MenuItemWrapper  >
-      <h1 id={menuItem.category} style={{ scrollMarginTop: "75px" }} >{menuItem.category}</h1>
+      <h2 id={menuItem.category} style={{ scrollMarginTop: "75px" }} >{menuItem.category.toUpperCase()}</h2>
       {menuItem.items.map((items, index) => {
         return (
           <Item onClick={() => handleItemClick(items)} key={index}>
@@ -100,8 +100,8 @@ const ItemImage = styled.img({
   margin: '25px',
   borderRadius: '25px',
   '@media (max-width: 767px)': {
-    height: '60px',
-    width: '90px',
+    height: '25%',
+    width: '25%',
     margin: '15px',
   },
   '@media (min-width: 768px) and (max-width: 1024px)': {

@@ -45,7 +45,6 @@ const OrderSuccess = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const session_id = urlParams.get("session_id");
   const collectionAddress = "cloud kitchen, 644 Hertford Rd, Enfield EN3 6LZ";
-  console.log("data:", data);
 
   useEffect(() => {
     if (data.payment_status === "paid") {

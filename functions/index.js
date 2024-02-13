@@ -77,7 +77,7 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     // Fulfill the purchase...
-    console.log("session", session);
+ 
     // update data in order data with id of session in firestore
     await firestore.collection("orders").doc(session.id).update({
       payment_status: session.payment_status,

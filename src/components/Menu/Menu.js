@@ -2,13 +2,23 @@ import React from "react";
 import { MenuConfig } from "./Menu.config";
 import MenuItem from "./MenuItem/MenuItem";
 import styled from "styled-components";
+import { IoIosArrowDropupCircle } from "react-icons/io";
+
 
 
 const Menu = () => {
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
+
   const scrollToCategory = (category) => {
     const element = document.getElementById(category);
-    console.log('elemt', element)
+  
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
@@ -20,14 +30,16 @@ const Menu = () => {
       <MenuNavContainer>
       {MenuConfig.map((menuItem) => (
           <MenuNav key={menuItem.category} onClick={() => scrollToCategory(menuItem.category)}>
-             <CategoryImage src={menuItem.items[0].imageUrl} alt={menuItem.category} />
-            {menuItem.category}
+             {/* <CategoryImage src={menuItem.items[0].imageUrl} alt={menuItem.category} /> */}
+            {menuItem.category.toUpperCase()}
           </MenuNav>
         ))}
       </MenuNavContainer>
       {MenuConfig.map((menuItem, index) => (
         <MenuItem menuItem={menuItem} key={index}  />
       ))}
+
+<IoIosArrowDropupCircle size={60} color="#FF8C00" onClick={scrollToTop}/>
     </div>
   );
 };
@@ -57,18 +69,22 @@ const container = {
   },
 };
 
+
+
 const MenuNav = styled.a({
   display: "flex",
   flexDirection: "column",
   alignItems: 'center',
   justifyContent: 'center',
-  border: '1px solid #E4E4E4',
   padding: 15,
   margin: '0 10px',
   borderRadius: 10,
   cursor: 'pointer',
+  background: 'linear-gradient(135deg, #FFC400 60%, #FF8C00 90%)',
+  color: '#0a0a0a',
 
 });
+
 
 const MenuNavContainer = styled.div({
   display: "flex",
