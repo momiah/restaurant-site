@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useCart } from "./CartContext";
 import CustomerForm from "./CustomerForm";
 import { db } from "../../config/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import {
   getUserLocation,
   isWithin2Miles,
