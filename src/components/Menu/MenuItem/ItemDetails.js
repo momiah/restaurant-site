@@ -3,14 +3,22 @@ import styled from "styled-components";
 import { useCart } from "../../AddToCart/CartContext";
 import CartIcon from "../../AddToCart/CartIcon";
 
-const ItemDetails = ({ name, description, price, extras, protein, image }) => {
+const ItemDetails = ({
+  name,
+  description,
+  price,
+  extras,
+  protein,
+  secondProtein,
+  image,
+}) => {
   const [selectedExtras, setSelectedExtras] = useState([]);
-  const [selectedProtein, setSelectedProtein] = useState(null)
+  const [selectedProtein, setSelectedProtein] = useState(null);
+  const [secondSelectedProtein, setSecondSelectedProtein] = useState(null);
+
   const [totalPrice, setTotalPrice] = useState(price);
   const [quantity, setQuantity] = useState(0);
   const { addToCart, toggleCart, cartItems, setCartItems } = useCart();
-
-
 
   useEffect(() => {
     let extrasPrice = 0;
@@ -22,6 +30,8 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
     });
     setTotalPrice(price + extrasPrice);
   }, [selectedExtras, price, extras]);
+
+
 
   const handleExtraChange = (extraType) => {
     if (selectedExtras.includes(extraType)) {
@@ -36,12 +46,26 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
   const handleProteinChange = (selectedProteinType) => {
     setSelectedProtein(selectedProteinType);
   };
+  const handleSecondProteinChange = (selectedProteinType) => {
+    setSecondSelectedProtein(selectedProteinType);
+  };
 
   const handleAddToCart = () => {
     const selectedExtrasWithPrice = selectedExtras.map((extraType) => {
       const extra = extras.find((e) => e.type === extraType);
       return extra;
     });
+
+    if (selectedProtein === null) {
+      alert("Please select a protein");
+    }
+
+    console.log('first protein', selectedProtein)
+    console.log('second protein', secondSelectedProtein)
+
+    if (secondProtein && secondSelectedProtein === null) {
+      alert("Please select a second protein");
+    }
 
     const existingItemIndex = cartItems.findIndex(
       (item) =>
@@ -106,6 +130,7 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
       {protein &&
         protein.length > 0 && ( // Check if extras exist and has data
           <ExtrasContainer>
+            <h3>Choose your first protein</h3>
             {protein.map((protein) => (
               <Extra key={protein.type}>
                 <div>
@@ -113,7 +138,7 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
                     {protein.type}
                   </p>
                   <p style={{ fontSize: "10px", margin: 0, color: "green" }}>
-                    {/* +£{protein.price.toFixed(2)} */}
+                    {protein.price ? `+£${protein.price?.toFixed(2)}` : null}
                   </p>
                 </div>
 
@@ -127,6 +152,32 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
             ))}
           </ExtrasContainer>
         )}
+      {secondProtein &&
+        secondProtein.length > 0 && ( // Check if extras exist and has data
+          <ExtrasContainer>
+            {secondProtein && <h3>Choose your second protein</h3>}
+            {secondProtein.map((protein) => (
+              <Extra key={protein.type}>
+                <div>
+                  <p style={{ fontWeight: "bold", marginBottom: 10 }}>
+                    {protein.type}
+                  </p>
+                  <p style={{ fontSize: "10px", margin: 0, color: "green" }}>
+                    {protein.price ? `+£${protein.price?.toFixed(2)}` : null}
+                  </p>
+                </div>
+
+                <Checkbox
+                  type="radio"
+                  value={protein.type}
+                  checked={secondSelectedProtein === protein.type}
+                  onChange={() => handleSecondProteinChange(protein.type)}
+                />
+              </Extra>
+            ))}
+          </ExtrasContainer>
+        )}
+
       <Total>£{totalPrice.toFixed(2)}</Total>
 
       <ButtonContainer>
@@ -173,6 +224,7 @@ const DetailsContainer = styled.div({
     width: "100%",
     flexDirection: "column",
     padding: "0 10px 0 10px",
+    overflow: "auto",
   },
   "@media (min-width: 480px) and (max-width: 767px)": {
     width: "100%",

@@ -18,21 +18,39 @@ export const MenuConfig = [
                     },
                     {
                         type: 'Double protein',
-                        price: 1.00
+                        price: 2.00
                     }
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken'
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef'
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean'
                     },
                 ],
-                price: 1.89,
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
+                    }
+                ],
+                price: 2.15,
             },
             {
                 name: "Crunchy Taco",
@@ -50,21 +68,39 @@ export const MenuConfig = [
                     },
                     {
                         type: 'Double protein',
-                        price: 1.00
+                        price: 2.00
                     }
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken'
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef'
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean'
                     },
                 ],
-                price: 1.89,
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
+                    }
+                ],
+                price: 2.15,
             },
             // {
             //     name: "Crunchy Taco Monster",
@@ -134,30 +170,49 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Rice',
+                        price: 1.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
                     },
                     {
                         type: 'Double protein',
-                        price: 1.00
+                        price: 2.00
                     }
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken'
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef',
+                        price: 0.30
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean'
                     },
                 ],
-                price: 6.99,
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
+                    }
+                ],
+                price: 5.69,
             },
             {
                 name: "Burrito Monster",
@@ -166,26 +221,62 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Rice',
+                        price: 1.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
+                    },
+                    {
+                        type: 'Double Protein',
+                        price: 2.00
                     }
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken'
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef',
+                        price: 0.30
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean'
                     },
                 ],
-                price: 7.99,
+                secondProtein: [
+                    {
+                        type: 'Chicken'
+                    },
+                    {
+                        type: 'Beef',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Spicy Bean'
+                    },
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
+                    }
+                ],
+                price: 12.50
+                ,
             },
             {
                 name: "Create your own burrito",
@@ -194,15 +285,96 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
-                        type: 'Sour Cream',
+                        type: 'BBQ Crushed Tortilla Chips',
+                        price: 0.30
+                    },
+                    {
+                        type: 'TM Special Chipotle Sauce (medium heat)',
                         price: 0.50
                     },
                     {
+                        type: 'Shredded Lettuce',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Sour Cream',
+                        price: 0.30
+                    },
+                    {
                         type: 'Crispy Onions',
-                        price: 0.50
+                        price: 0.30
+                    },
+                    {
+                        type: 'Diced Tomatoes',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Diced Red Onions',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Jalapenos',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Mayo',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Grated Cheddar Cheese',
+                        price: 0.75
+                    },
+                    {
+                        type: 'Melted Cheese',
+                        price: 0.75
+                    },
+                    {
+                        type: 'Seasoned Fries',
+                        price: 1.00
+                    },
+                    {
+                        type: 'Mayo',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Grated Cheddar Cheese',
+                        price: 0.75
+                    },
+
+                ],
+                protein: [
+                    {
+                        type: 'Chicken',
+                        price: 2.00
+                    },
+                    {
+                        type: 'Beef',
+                        price: 2.00
+                    },
+                    {
+                        type: 'Spicy Bean',
+                        price: 2.00
+                    },
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
                     }
                 ],
-                price: 8.99,
+                price: 4.69,
             }
         ],
     },
@@ -222,18 +394,40 @@ export const MenuConfig = [
                     {
                         type: 'Crispy Onions',
                         price: 0.50
+                    },
+                    {
+                        type: 'Double Protein',
+                        price: 2.00
                     }
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken'
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef'
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean'
                     },
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
+                    }
                 ],
                 price: 6.99,
             },
@@ -328,12 +522,30 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fchicken-drizzle.jpg?alt=media&token=2cbdd773-cc3f-440d-b73a-a38f423667ca",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Protein',
+                        price: 2.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
+                        type: 'Melted Cheese',
+                        price: 1.00
+                    }
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
                     }
                 ],
                 price: 7.99,
@@ -345,12 +557,30 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fbeany-cheese.jpg?alt=media&token=6ae009a0-bae5-4a27-9402-eccf7f06ea57",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Protein',
+                        price: 2.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
+                    }
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
                     }
                 ],
                 price: 6.99,
@@ -362,12 +592,30 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fbeefy-cheese.jpg?alt=media&token=7e87c698-4c68-4314-8d47-80ece3c505e8",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Protein',
+                        price: 2.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
+                    }
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
                     }
                 ],
                 price: 7.99,
