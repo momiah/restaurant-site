@@ -23,13 +23,16 @@ export const MenuConfig = [
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken',
+                        price: null
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef',
+                        price: null
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean',
+                        price: null
                     },
                 ],
                 price: 1.89,
@@ -55,13 +58,15 @@ export const MenuConfig = [
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken',
+                        price: null
                     },
                     {
                         type: 'beef'
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean',
+                        price: null
                     },
                 ],
                 price: 1.89,
@@ -83,13 +88,15 @@ export const MenuConfig = [
             //     ],
             //     protein: [
             //         {
-            //             type: 'chicken'
+            //             type: 'chicken',
+        //    price: null
             //         },
             //         {
             //             type: 'beef'
             //         },
             //         {
-            //             type: 'spicy bean'
+            //             type: 'spicy bean',
+            // price: null
             //         },
             //     ],
             //     price: 7.99,
@@ -111,13 +118,15 @@ export const MenuConfig = [
             //     ],
             //     protein: [
             //         {
-            //             type: 'chicken'
+            //             type: 'chicken',
+           // price: null
             //         },
             //         {
             //             type: 'beef'
             //         },
             //         {
-            //             type: 'spicy bean'
+            //             type: 'spicy bean',
+            // price: null
             //         },
             //     ],
             //     price: 7.99,
@@ -148,13 +157,15 @@ export const MenuConfig = [
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken',
+                        price: null
                     },
                     {
                         type: 'beef'
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean',
+                        price: null
                     },
                 ],
                 price: 6.99,
@@ -176,16 +187,51 @@ export const MenuConfig = [
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken',
+                        price: null
                     },
                     {
                         type: 'beef'
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean',
+                        price: null
                     },
                 ],
-                price: 7.99,
+                secondProtein: [
+                    {
+                        type: 'Chicken',
+                        price: null
+                    },
+                    {
+                        type: 'Beef',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Spicy Bean',
+                        price: null
+                    },
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
+                    }
+                ],
+                price: 12.50
+                ,
             },
             {
                 name: "Create your own burrito",
@@ -199,7 +245,77 @@ export const MenuConfig = [
                     },
                     {
                         type: 'Crispy Onions',
-                        price: 0.50
+                        price: 0.30
+                    },
+                    {
+                        type: 'Diced Tomatoes',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Diced Red Onions',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Jalapenos',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Mayo',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Grated Cheddar Cheese',
+                        price: 0.75
+                    },
+                    {
+                        type: 'Melted Cheese',
+                        price: 0.75
+                    },
+                    {
+                        type: 'Seasoned Fries',
+                        price: 1.00
+                    },
+                    {
+                        type: 'Mayo',
+                        price: 0.30
+                    },
+                    {
+                        type: 'Grated Cheddar Cheese',
+                        price: 0.75
+                    },
+
+                ],
+                protein: [
+                    {
+                        type: 'Chicken',
+                        price: 2.00
+                    },
+                    {
+                        type: 'Beef',
+                        price: 2.00
+                    },
+                    {
+                        type: 'Spicy Bean',
+                        price: null,
+                      
+                    },
+                ],
+                drink: [
+                    {
+                        type: 'Pepsi Max 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Pepsi Max Cherry 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Tango Apple 330ml',
+                        price: 1.65
+                    },
+                    {
+                        type: 'Original Coca Cola 330ml',
+                        price: 1.65
                     }
                 ],
                 price: 8.99,
@@ -226,13 +342,16 @@ export const MenuConfig = [
                 ],
                 protein: [
                     {
-                        type: 'chicken'
+                        type: 'Chicken',
+                        price: null
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef',
+                        price: 0.30
                     },
                     {
-                        type: 'spicy bean'
+                        type: 'Spicy Bean',
+                        price: null
                     },
                 ],
                 price: 6.99,
@@ -288,13 +407,15 @@ export const MenuConfig = [
             //     ],
             //     protein: [
             //         {
-            //             type: 'chicken'
+            //             type: 'chicken',
+            // price: null
             //         },
             //         {
             //             type: 'beef'
             //         },
             //         {
-            //             type: 'spicy bean'
+            //             type: 'spicy bean',
+            // price: null
             //         },
             //     ],
             //     price: 7.99,

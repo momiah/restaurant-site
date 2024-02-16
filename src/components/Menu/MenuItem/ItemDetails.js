@@ -3,14 +3,32 @@ import styled from "styled-components";
 import { useCart } from "../../AddToCart/CartContext";
 import CartIcon from "../../AddToCart/CartIcon";
 
-const ItemDetails = ({ name, description, price, extras, protein, image }) => {
+const ItemDetails = ({
+  name,
+  description,
+  price,
+  extras,
+  protein,
+  secondProtein,
+  image,
+}) => {
   const [selectedExtras, setSelectedExtras] = useState([]);
-  const [selectedProtein, setSelectedProtein] = useState(null)
+  const [proteins, setProteins] = useState([])
+  const [secondProteins, setSecondProteins] = useState([])
+  const [selectedProtein, setSelectedProtein] = useState([]);
+  const [secondSelectedProtein, setSecondSelectedProtein] = useState(null);
+
   const [totalPrice, setTotalPrice] = useState(price);
   const [quantity, setQuantity] = useState(0);
   const { addToCart, toggleCart, cartItems, setCartItems } = useCart();
 
+useEffect(() => {
+  if(!selectedExtras && !proteins && !secondProteins){
+    setTotalPrice(price)
+  }
+}, [selectedExtras, proteins, secondProteins, price])
 
+  console.log(totalPrice)
 
   useEffect(() => {
     let extrasPrice = 0;
@@ -23,6 +41,30 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
     setTotalPrice(price + extrasPrice);
   }, [selectedExtras, price, extras]);
 
+//   useEffect(() => {
+//     // Calculate the total price of all selected proteins
+//     const proteinPrices = proteins.map((protein) => protein.price || 0);
+//     // Calculate the total price including extras and protein prices
+//     const newTotalPrice = price + proteinPrices[0];
+//     setTotalPrice(newTotalPrice);
+// }, [price, proteins]);
+
+//   useEffect(() => {
+//     // Calculate the total price of all selected proteins
+//     const proteinPrices = secondProteins.map((protein) => protein.price || 0);
+
+
+//     // Calculate the total price including extras and protein prices
+//     const newTotalPrice = price + proteinPrices[0];
+//     setTotalPrice(newTotalPrice);
+// }, [price, secondProteins]);
+
+
+
+
+
+
+
   const handleExtraChange = (extraType) => {
     if (selectedExtras.includes(extraType)) {
       setSelectedExtras((prevExtras) =>
@@ -33,15 +75,74 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
     }
   };
 
-  const handleProteinChange = (selectedProteinType) => {
+  const handleProtein = (selectedProteinType) => {
     setSelectedProtein(selectedProteinType);
-  };
+    const proteinType = protein.filter(p => p.type === selectedProteinType)
+
+    const proteinPrices = proteinType.map((protein) => protein.price || 0);
+    const newTotalPrice = price + proteinPrices[0];
+    setTotalPrice(newTotalPrice);
+  }
+
+  const handleSecondProtein = (secondSelectedProteinType) => {
+    setSecondSelectedProtein(secondSelectedProteinType);
+    const proteinType = protein.filter(p => p.type === secondSelectedProteinType)
+    setSecondProteins(proteinType)
+  }
+
+
+
+//   const handleProteinChange = (selectedProteinType) => {
+//     const selectedProtein = protein.find((p) => p.type === selectedProteinType);
+//     if (selectedProtein) {
+//         const proteinPrice = selectedProtein.price ? selectedProtein.price : 0;
+//         if (selectedProtein.type === 'Beef') {
+//             setTotalPrice(totalPrice + proteinPrice);
+//         } else {
+//             setTotalPrice(price); // Use the initial price state here
+//         }
+//         setSelectedProtein(selectedProteinType);
+//     }
+// };
+
+// const handleSecondProteinChange = (selectedProteinType) => {
+//   const selectedProtein = protein.find((p) => p.type === selectedProteinType);
+//   if (selectedProtein) {
+//       const proteinPrice = selectedProtein.price ? selectedProtein.price : 0;
+//       if (selectedProtein.type === 'Beef') {
+//           // If beef is selected, add its price to the total
+//           setTotalPrice(totalPrice + proteinPrice);
+//       } else {
+//           // If another protein is selected, subtract the beef price from the total
+//           const beefPrice = protein.find((p) => p.type === 'Beef').price || 0;
+//           setTotalPrice(totalPrice - beefPrice + proteinPrice);
+//       }
+//       setSecondSelectedProtein(selectedProteinType);
+//   }
+// };
+
+
+
+
+
+
+
+
+
 
   const handleAddToCart = () => {
     const selectedExtrasWithPrice = selectedExtras.map((extraType) => {
       const extra = extras.find((e) => e.type === extraType);
       return extra;
     });
+
+    if (selectedProtein === null) {
+      alert("Please select a protein");
+    }
+
+    if (secondProtein && secondSelectedProtein === null) {
+      alert("Please select a second protein");
+    }
 
     const existingItemIndex = cartItems.findIndex(
       (item) =>
@@ -62,6 +163,7 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
         price: totalPrice,
         extras: selectedExtrasWithPrice,
         protein: selectedProtein,
+        secondProtein: secondSelectedProtein,
         quantity: 1, // Set initial quantity to 1
         image,
       });
@@ -106,6 +208,7 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
       {protein &&
         protein.length > 0 && ( // Check if extras exist and has data
           <ExtrasContainer>
+            <h3>Choose your first protein</h3>
             {protein.map((protein) => (
               <Extra key={protein.type}>
                 <div>
@@ -113,7 +216,7 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
                     {protein.type}
                   </p>
                   <p style={{ fontSize: "10px", margin: 0, color: "green" }}>
-                    {/* +£{protein.price.toFixed(2)} */}
+                    {protein.price ? `+£${protein.price?.toFixed(2)}` : null}
                   </p>
                 </div>
 
@@ -121,12 +224,38 @@ const ItemDetails = ({ name, description, price, extras, protein, image }) => {
                   type="radio"
                   value={protein.type}
                   checked={selectedProtein === protein.type}
-                  onChange={() => handleProteinChange(protein.type)}
+                  onChange={() => handleProtein(protein.type)}
                 />
               </Extra>
             ))}
           </ExtrasContainer>
         )}
+      {secondProtein &&
+        secondProtein.length > 0 && ( // Check if extras exist and has data
+          <ExtrasContainer>
+            {secondProtein && <h3>Choose your second protein</h3>}
+            {secondProtein.map((protein) => (
+              <Extra key={protein.type}>
+                <div>
+                  <p style={{ fontWeight: "bold", marginBottom: 10 }}>
+                    {protein.type}
+                  </p>
+                  <p style={{ fontSize: "10px", margin: 0, color: "green" }}>
+                    {protein.price ? `+£${protein.price?.toFixed(2)}` : null}
+                  </p>
+                </div>
+
+                <Checkbox
+                  type="radio"
+                  value={protein.type}
+                  checked={secondSelectedProtein === protein.type}
+                  onChange={() => handleSecondProtein(protein.type)}
+                />
+              </Extra>
+            ))}
+          </ExtrasContainer>
+        )}
+
       <Total>£{totalPrice.toFixed(2)}</Total>
 
       <ButtonContainer>
@@ -173,6 +302,7 @@ const DetailsContainer = styled.div({
     width: "100%",
     flexDirection: "column",
     padding: "0 10px 0 10px",
+    overflow: "auto",
   },
   "@media (min-width: 480px) and (max-width: 767px)": {
     width: "100%",
