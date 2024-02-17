@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import MenuItemExpanded from './MenuItemExpanded';
+import {NoImageAvailable} from '../Menu.config'
 
 const MenuItem = ({ menuItem }) => {
   const [ItemExpanded, setItemExpanded] = useState(false);
@@ -19,10 +20,13 @@ const MenuItem = ({ menuItem }) => {
     setItemExpanded(false);
   };
 
+  console.log('menu item =>', menuItem)
   return (
     <MenuItemWrapper  >
       <h2 id={menuItem.category} style={{ scrollMarginTop: "75px" }} >{menuItem.category.toUpperCase()}</h2>
       {menuItem.items.map((items, index) => {
+
+        const imagePath = items.imageUrl ? items.imageUrl : NoImageAvailable
         return (
           <Item onClick={() => handleItemClick(items)} key={index}>
            
@@ -31,9 +35,9 @@ const MenuItem = ({ menuItem }) => {
               <Description>
               <h2>{items.name}</h2>
                 <p>{items.description}</p>
-                <h4>£{items.price}</h4>
+                <h4>£{items.price.toFixed(2)}</h4>
               </Description>
-              <ItemImage src={items.imageUrl} />
+              <ItemImage src={imagePath} />
              
             </ItemInfoContainer>
           </Item>

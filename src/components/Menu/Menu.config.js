@@ -1,3 +1,5 @@
+export const NoImageAvailable = 'https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcoming-soon-photo.jpg?alt=media&token=c917b0d8-4f97-4824-9b07-ed51759c8b31'
+
 export const MenuConfig = [
     {
         category: "Tacos",
@@ -35,7 +37,7 @@ export const MenuConfig = [
                         price: null
                     },
                 ],
-                price: 1.89,
+                price: 2.15,
             },
             {
                 name: "Crunchy Taco",
@@ -62,14 +64,14 @@ export const MenuConfig = [
                         price: null
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef'
                     },
                     {
                         type: 'Spicy Bean',
                         price: null
                     },
                 ],
-                price: 1.89,
+                price: 2.15,
             },
             // {
             //     name: "Crunchy Taco Monster",
@@ -143,12 +145,12 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Rice',
+                        price: 1.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
                     },
                     {
                         type: 'Double protein',
@@ -161,14 +163,15 @@ export const MenuConfig = [
                         price: null
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef',
+                        price: null
                     },
                     {
                         type: 'Spicy Bean',
                         price: null
                     },
                 ],
-                price: 6.99,
+                price: 5.69,
             },
             {
                 name: "Burrito Monster",
@@ -177,13 +180,13 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fburrito.jpg?alt=media&token=61fc95a3-19f3-45b3-8697-399d9c99678c",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Rice',
+                        price: 1.00
                     },
                     {
-                        type: 'Crispy Onions',
-                        price: 0.50
-                    }
+                        type: 'Double Cheese',
+                        price: 1.00
+                    },
                 ],
                 protein: [
                     {
@@ -191,7 +194,8 @@ export const MenuConfig = [
                         price: null
                     },
                     {
-                        type: 'beef'
+                        type: 'Beef',
+                        price: null
                     },
                     {
                         type: 'Spicy Bean',
@@ -205,7 +209,7 @@ export const MenuConfig = [
                     },
                     {
                         type: 'Beef',
-                        price: 0.30
+                        price: null
                     },
                     {
                         type: 'Spicy Bean',
@@ -264,6 +268,14 @@ export const MenuConfig = [
                         price: 0.30
                     },
                     {
+                        type: 'Garlic Mayo',
+                        price: 0.30
+                    },
+                    {
+                        type: 'TM Special Chipotle Sauce (medium heat)',
+                        price: 0.50
+                    },
+                    {
                         type: 'Grated Cheddar Cheese',
                         price: 0.75
                     },
@@ -276,23 +288,25 @@ export const MenuConfig = [
                         price: 1.00
                     },
                     {
-                        type: 'Mayo',
-                        price: 0.30
-                    },
-                    {
-                        type: 'Grated Cheddar Cheese',
+                        type: 'TM Special Salsa',
                         price: 0.75
                     },
+                    {
+                        type: 'Double Protein',
+                        price: 2.00
+                    }
+              
+      
 
                 ],
                 protein: [
                     {
                         type: 'Chicken',
-                        price: 2.00
+                        price: null
                     },
                     {
                         type: 'Beef',
-                        price: 2.00
+                        price: null
                     },
                     {
                         type: 'Spicy Bean',
@@ -318,7 +332,7 @@ export const MenuConfig = [
                         price: 1.65
                     }
                 ],
-                price: 8.99,
+                price: 4.69,
             }
         ],
     },
@@ -332,12 +346,20 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fmonster-fries-white-bg.jpg?alt=media&token=cf181244-877c-4a6c-b8c2-9ccb1e5cd10c",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Protein',
+                        price: 2.00
                     },
                     {
                         type: 'Crispy Onions',
                         price: 0.50
+                    },
+                    {
+                        type: 'TM Special Chipotle Sauce (medium heat)',
+                        price: 0.50
+                    },
+                    {
+                        type: 'TM Special Salsa',
+                        price: 0.75
                     }
                 ],
                 protein: [
@@ -347,14 +369,14 @@ export const MenuConfig = [
                     },
                     {
                         type: 'Beef',
-                        price: 0.30
+                        price: null
                     },
                     {
                         type: 'Spicy Bean',
                         price: null
                     },
                 ],
-                price: 6.99,
+                price: 6.29,
             },
             {
                 name: "Cheesy Fries",
@@ -363,15 +385,11 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcheesy-fries-white-bg.jpg?alt=media&token=f0e37da4-2c07-48fc-bf88-7757e7270ea3",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
-                    },
-                    {
                         type: 'Crispy Onions',
                         price: 0.50
                     }
                 ],
-                price: 6.99,
+                price: 4.19,
             },
             {
                 name: "Seasoned Fries",
@@ -379,16 +397,13 @@ export const MenuConfig = [
                 description: "Fries with special seasoning",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fseasoned-fries-white-bg.jpg?alt=media&token=dc819015-7967-46b5-8bca-242012e54793",
                 extras: [
-                    {
-                        type: 'Sour Cream',
-                        price: 0.50
-                    },
+
                     {
                         type: 'Crispy Onions',
                         price: 0.50
                     }
                 ],
-                price: 5.99,
+                price: 2.35,
             },
             // {
             //     name: "Nacho Monster",
@@ -445,19 +460,19 @@ export const MenuConfig = [
             {
                 name: "Chicken Drizzle Griller",
                 ingredients: 'Chicken, Cheese, Drizzle Sauce',
-                description: "Grilled chicken with cheese and special drizzle sauce",
+                description: "Home made pulled chicken with cheese and special drizzle sauce",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fchicken-drizzle.jpg?alt=media&token=2cbdd773-cc3f-440d-b73a-a38f423667ca",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Cheese',
+                        price: 1.00
                     },
                     {
                         type: 'Crispy Onions',
                         price: 0.50
                     }
                 ],
-                price: 7.99,
+                price: 3.09,
             },
             {
                 name: "Beany Cheese Griller",
@@ -466,15 +481,15 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fbeany-cheese.jpg?alt=media&token=6ae009a0-bae5-4a27-9402-eccf7f06ea57",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
                     },
                     {
                         type: 'Crispy Onions',
                         price: 0.50
                     }
                 ],
-                price: 6.99,
+                price: 3.09,
             },
             {
                 name: "Beefy Cheese Griller",
@@ -483,15 +498,15 @@ export const MenuConfig = [
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fbeefy-cheese.jpg?alt=media&token=7e87c698-4c68-4314-8d47-80ece3c505e8",
                 extras: [
                     {
-                        type: 'Sour Cream',
-                        price: 0.50
+                        type: 'Double Cheese',
+                        price: 1.00
                     },
                     {
                         type: 'Crispy Onions',
                         price: 0.50
                     }
                 ],
-                price: 7.99,
+                price: 3.39,
             }
         ],
     },
@@ -528,21 +543,127 @@ export const MenuConfig = [
         category: "Desserts",
         items: [
             {
-                name: "Churros with Dulce de Leche",
+                name: "6 Churros with 2 sauces",
                 ingredients: 'Churros, Dulce de Leche',
-                description: "Delicious churros with Dulce de Leche",
+                description: "Crunchy dough swirls covered with cinnamon sugar, served with Dulce de Leche sauce. Contains milk 'including lactose'",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2F2churrosdulce.jpg?alt=media&token=b471a741-1193-4968-879c-1d42116e6fa1",
-                price: 4.99,
-                extras: null,
+                price: 6.45,
+                sauce: [
+                    {
+                        type: 'Dulce de Leche',
+                        price: null
+                    },
+                    {
+                        type: 'Hershies Chocolate',
+                        price: null
+                    }
+                ],
+                secondSauce: [
+                    {
+                        type: 'Dulce de Leche',
+                        price: null
+                    },
+                    {
+                        type: 'Hershies Chocolate',
+                        price: null
+                    }
+                ],
             },
             {
-                name: "Churros",
+                name: "Churros with Dulce de Leche",
                 ingredients: 'Churros',
-                description: "Delicious churros",
+                description: "Two Delicious churros  covered with cinnamon sugar, served with Dulce de Leche sauce. Contains milk 'including lactose'.",
                 imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2F2churros.jpg?alt=media&token=50c8f753-f475-42fb-bbde-7060ff1debf7",
-                price: 3.99,
+                price: 3.14,
                 extras: null,
+            },
+            
+        ],
+    },
+    
+    {
+        category: "Combos",
+        items: [
+            {
+                name: "Griller Combo",
+                ingredients: '',
+                description: "Three flavour packed Grillers of choice with a portion of seasoned fries.",
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2FScreenshot%202024-02-17%20at%2000.28.39.png?alt=media&token=81a1687f-e6f5-4471-b2f6-00b72d5eb9a9",
+                price: 10.55,
+                extras: [
+                    {
+                        type: 'Go Large',
+                        price: 1.50
+                    },
+                  
+                ],
+                protein: [
+                    {
+                        type: 'Chicken',
+                        price: null
+                    },
+                    {
+                        type: 'Beef',
+                        price: null
+                    },
+                    {
+                        type: 'Spicy Bean',
+                        price: null
+                    },
+                ],
+                secondProtein: [
+                    {
+                        type: 'Chicken',
+                        price: null
+                    },
+                    {
+                        type: 'Beef',
+                        price: null
+                    },
+                    {
+                        type: 'Spicy Bean',
+                        price: null
+                    },
+                ],
+                thirdProtein: [
+                    {
+                        type: 'Chicken',
+                        price: null
+                    },
+                    {
+                        type: 'Beef',
+                        price: null
+                    },
+                    {
+                        type: 'Spicy Bean',
+                        price: null
+                    },
+                ],
+             
             }
+        ],
+    },
+    {
+        category: "Kids",
+        items: [
+            {
+                name: "Chicken Nuggets",
+                ingredients: 'Chicken breast nuggets',
+                description: "5 tasty nuggets made with chicken breast, cooked golden brown and served with a pot of Ketchup.",
+                imageUrl: "https://s3.dualstack.ap-south-1.amazonaws.com/shopnowchat.com/Medium/MPRNEclfVnmUR_ChickenNuggets(5piece).jpg",
+                price: 2.65,
+                extras: [
+                    {
+                        type: 'Fries (Unseasoned)',
+                        price: 1.50
+                    },
+                    {
+                        type: 'Double Nuggets (10)',
+                        price: 2.50
+                    }
+                ],
+             
+            },
         ],
     }
 ]

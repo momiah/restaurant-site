@@ -8,7 +8,7 @@ const MenuItemExpanded = ({ item, onClose }) => {
     e.stopPropagation();
   };
 
-
+console.log('item.extras => ', item.extras)
   return (
     <ContentContainer onClick={handleContentClick}>
       <IoMdCloseCircleOutline
@@ -25,6 +25,9 @@ const MenuItemExpanded = ({ item, onClose }) => {
           price={item.price}
           extras={item.extras}
           protein={item.protein}
+          secondProtein={item.secondProtein}
+          thirdProtein={item.thirdProtein}
+
           image={item.imageUrl}
         />
       </ItemContainer>
@@ -37,7 +40,7 @@ const ItemContainer = styled.div({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  
+  overflow: 'auto',
   height: "80%", // Changed to percentage-based value
   "@media (max-width: 767px)": {
     flexDirection: "column",
@@ -55,7 +58,7 @@ const ItemContainer = styled.div({
 
 const ContentContainer = styled.div({
   backgroundColor: "white",
-  padding: "20px 0px",
+  padding: "10px 0px",
   display: "flex",
   flexDirection: "column", // Changed to column for consistent layout
   justifyContent: "center",
@@ -68,7 +71,7 @@ const ContentContainer = styled.div({
   overflowY: "auto",
   "@media (max-width: 767px)": {
     width: "90%",
-    padding: "50px 10px 20px",
+    padding: "10px 10px 20px",
   },
   "@media (min-width: 768px) and (max-width: 1024px)": {
     width: "75%",
@@ -102,14 +105,6 @@ const ItemImage = styled.img({
   },
 });
 
-const CloseButton = styled.button({
-  position: "absolute",
-  top: "10px",
-  right: "10px",
-  background: "none",
-  border: "none",
-  fontSize: "1.5rem",
-  cursor: "pointer",
-});
+
 
 export default MenuItemExpanded;
