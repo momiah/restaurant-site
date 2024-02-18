@@ -295,8 +295,10 @@ console.log('item quantity', itemQuantity)
             <CartDetails>
               {cartItems.length > 0 ? (
                 cartItems.map((item, index) => {
-                  console.log('item🚫🚫🚫', item.quantity)
-
+                  const extrasPrice = item.extras.map(extra => extra.price).reduce((acc, currentVal) => acc + currentVal, 0)
+                  
+                  const originalPrice = (item.price - extrasPrice) * item.quantity
+                  console.log('item🚫🚫🚫', originalPrice)
                   return (
                   <CartItem key={index}>
                     <div
@@ -307,11 +309,50 @@ console.log('item quantity', itemQuantity)
                         marginBottom: 10,
                       }}
                     >
-
                       <h3>{item.name} ({item.quantity})</h3>
-                   
+                      £{originalPrice.toFixed(2)}
+                    </div>
+                    <p>
+                      {item.protein ? (
+                        <b>{item.protein.toUpperCase()}</b>
 
-                      <div
+                      ) : (
+                       null
+                      )}
+                    </p>
+                    <p>
+                      {item.secondProtein ? (
+                        <b>{item.secondProtein ? item.secondProtein.toUpperCase() : null}</b>
+                      ) : (
+                        null
+                      )}
+                    </p>
+                    <p>
+                      {item.thirdProtein ? (
+                        <b>{item.thirdProtein.toUpperCase()}</b>
+                      ) : (
+                        null
+                      )}
+                    </p>
+                    {item.extras &&
+                      item.extras.map((extra, idx) => {
+                        const extrasPrice = extra.price * item.quantity
+                        return (
+                        <div
+                          style={{
+                            flexDirection: "row",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginTop: "-20px",
+                          }}
+                        >
+                          <p key={idx}>{extra.type} </p>
+                          <p> £{extrasPrice.toFixed(2)}</p>
+                        </div>
+                      )})}
+                 
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <div
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
@@ -343,46 +384,11 @@ console.log('item quantity', itemQuantity)
                         increaseQuantity(item.name, item.extras)
                       }/>
                       </div>
-                    </div>
-                    <p>
-                      {item.protein ? (
-                        <b>{item.protein.toUpperCase()}</b>
-                      ) : (
-                       null
-                      )}
-                    </p>
-                    <p>
-                      {item.secondProtein ? (
-                        <b>{item.secondProtein ? item.secondProtein.toUpperCase() : null}</b>
-                      ) : (
-                        null
-                      )}
-                    </p>
-                    <p>
-                      {item.thirdProtein ? (
-                        <b>{item.thirdProtein.toUpperCase()}</b>
-                      ) : (
-                        null
-                      )}
-                    </p>
-                    {item.extras &&
-                      item.extras.map((extra, idx) => (
-                        <div
-                          style={{
-                            flexDirection: "row",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "-20px",
-                          }}
-                        >
-                          <p key={idx}>{extra.type} </p>
-                          <p> £{extra.price.toFixed(2)}</p>
-                        </div>
-                      ))}
                     <p style={{ textAlign: "right", fontWeight: "bold" }}>
                       £{(item.price * item.quantity).toFixed(2)}{" "}
                       {/* Updated subtotal */}
                     </p>
+                      </div>  
                   </CartItem>
                 )})
               ) : (
