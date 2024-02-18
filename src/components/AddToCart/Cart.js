@@ -246,6 +246,9 @@ const timeIs = () => {
 
   };
 
+  const itemQuantity = cartItems.map(item => item.quantity).reduce((acc, currentVal) => acc + currentVal, 0)
+console.log('item quantity', itemQuantity)
+
   if (!isCartOpen) return null;
 
   return (
@@ -271,7 +274,7 @@ const timeIs = () => {
         />
         <OrderExpand>
           <h2 style={{ textAlign: "left", fontSize: "1.5rem" }}>Your Order</h2>
-          <h5 style={{ position: "initial" }}>{cartItems.length} Items</h5>
+          <h5 style={{ position: "initial" }}>{itemQuantity} Items</h5>
           {isMobile && ( // Display toggle button only on mobile
             <button
               onClick={toggleCartItems}
@@ -291,7 +294,10 @@ const timeIs = () => {
           {(isMobile ? isCartExpanded : true) && (
             <CartDetails>
               {cartItems.length > 0 ? (
-                cartItems.map((item, index) => (
+                cartItems.map((item, index) => {
+                  console.log('item🚫🚫🚫', item.quantity)
+
+                  return (
                   <CartItem key={index}>
                     <div
                       style={{
@@ -301,14 +307,15 @@ const timeIs = () => {
                         marginBottom: 10,
                       }}
                     >
-                      <h3>{item.name}</h3>
+
+                      <h3>{item.name} ({item.quantity})</h3>
+                   
 
                       <div
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          
                         }}
                       ><FaRegMinusSquare style={{
                         height: "25px",
@@ -341,7 +348,21 @@ const timeIs = () => {
                       {item.protein ? (
                         <b>{item.protein.toUpperCase()}</b>
                       ) : (
-                        <b>NO PROTEIN</b>
+                       null
+                      )}
+                    </p>
+                    <p>
+                      {item.secondProtein ? (
+                        <b>{item.secondProtein ? item.secondProtein.toUpperCase() : null}</b>
+                      ) : (
+                        null
+                      )}
+                    </p>
+                    <p>
+                      {item.thirdProtein ? (
+                        <b>{item.thirdProtein.toUpperCase()}</b>
+                      ) : (
+                        null
                       )}
                     </p>
                     {item.extras &&
@@ -363,7 +384,7 @@ const timeIs = () => {
                       {/* Updated subtotal */}
                     </p>
                   </CartItem>
-                ))
+                )})
               ) : (
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
                   No items in your cart

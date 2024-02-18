@@ -16,7 +16,7 @@ const ItemDetails = ({
   const [selectedExtras, setSelectedExtras] = useState([]);
   // const [proteins, setProteins] = useState([])
   // const [secondProteins, setSecondProteins] = useState([])
-  const [selectedProtein, setSelectedProtein] = useState([]);
+  const [selectedProtein, setSelectedProtein] = useState(null);
   const [secondSelectedProtein, setSecondSelectedProtein] = useState(null);
   const [thirdSelectedProtein, setThirdSelectedProtein] = useState(null);
 
@@ -128,15 +128,18 @@ const ItemDetails = ({
       return extra;
     });
 
-    if (selectedProtein === null) {
+    if (protein && selectedProtein === null) {
       alert("Please select a protein");
+      return
     }
 
     if (secondProtein && secondSelectedProtein === null) {
       alert("Please select a second protein");
+      return
     }
     if (thirdProtein && thirdSelectedProtein === null) {
       alert("Please select a third protein");
+      return
     }
 
     const existingItemIndex = cartItems.findIndex(
@@ -260,8 +263,8 @@ const ItemDetails = ({
         {thirdProtein &&
           thirdProtein.length > 0 && ( // Check if extras exist and has data
             <ExtrasContainer>
-              {secondProtein && <h3>Choose your third protein</h3>}
-              {secondProtein.map((protein) => (
+              {thirdProtein && <h3>Choose your third protein</h3>}
+              {thirdProtein.map((protein) => (
                 <Extra key={protein.type}>
                   <div>
                     <p style={{ fontWeight: "bold", marginBottom: 10 }}>
