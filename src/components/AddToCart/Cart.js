@@ -41,7 +41,7 @@ const timeIs = () => {
       // Update the state with the formatted date and time
       setDateTime(formattedDateTime);
   
-      console.log('here', dateTime)
+
 }
 
   const [total, setTotal] = useState(0);
@@ -77,7 +77,7 @@ const timeIs = () => {
     toggleCart(false);
     e.stopPropagation();
     timeIs()
-    console.log('date time', dateTime)
+
   };
 
   const toggleCartItems = () => {
@@ -205,8 +205,8 @@ const timeIs = () => {
       );
   
       const data = await res.json();
-      console.log('data', data)
-  
+ 
+        console.log('cart items')
       if (data?.id && data?.url) {
         await setDoc(doc(db, "orders", data.id), {
           ...formData,
@@ -246,6 +246,9 @@ const timeIs = () => {
 
   };
 
+  const itemQuantity = cartItems.map(item => item.quantity).reduce((acc, currentVal) => acc + currentVal, 0)
+
+
   if (!isCartOpen) return null;
 
   return (
@@ -271,7 +274,7 @@ const timeIs = () => {
         />
         <OrderExpand>
           <h2 style={{ textAlign: "left", fontSize: "1.5rem" }}>Your Order</h2>
-          <h5 style={{ position: "initial" }}>{cartItems.length} Items</h5>
+          <h5 style={{ position: "initial" }}>{itemQuantity} Items</h5>
           {isMobile && ( // Display toggle button only on mobile
             <button
               onClick={toggleCartItems}
@@ -291,7 +294,12 @@ const timeIs = () => {
           {(isMobile ? isCartExpanded : true) && (
             <CartDetails>
               {cartItems.length > 0 ? (
-                cartItems.map((item, index) => (
+                cartItems.map((item, index) => {
+                  const extrasPrice = item.extras.map(extra => extra.price).reduce((acc, currentVal) => acc + currentVal, 0)
+                  
+                  const originalPrice = (item.price - extrasPrice) * item.quantity
+                
+                  return (
                   <CartItem key={index}>
                     <div
                       style={{
@@ -301,14 +309,54 @@ const timeIs = () => {
                         marginBottom: 10,
                       }}
                     >
-                      <h3>{item.name}</h3>
+                      <h3>{item.name} ({item.quantity})</h3>
+                      £{originalPrice.toFixed(2)}
+                    </div>
+                    <p>
+                      {item.protein ? (
+                        <b>{item.protein.toUpperCase()}</b>
 
-                      <div
+                      ) : (
+                       null
+                      )}
+                    </p>
+                    <p>
+                      {item.secondProtein ? (
+                        <b>{item.secondProtein ? item.secondProtein.toUpperCase() : null}</b>
+                      ) : (
+                        null
+                      )}
+                    </p>
+                    <p>
+                      {item.thirdProtein ? (
+                        <b>{item.thirdProtein.toUpperCase()}</b>
+                      ) : (
+                        null
+                      )}
+                    </p>
+                    {item.extras &&
+                      item.extras.map((extra, idx) => {
+                        const extrasPrice = extra.price * item.quantity
+                        return (
+                        <div
+                          style={{
+                            flexDirection: "row",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginTop: "-10px",
+                          }}
+                        >
+                          <p key={idx} style={{color: '#509B00'}}>{extra.type} </p>
+                          <p> £{extrasPrice.toFixed(2)}</p>
+                        </div>
+                      )})}
+                 
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <div
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          
                         }}
                       ><FaRegMinusSquare style={{
                         height: "25px",
@@ -336,34 +384,13 @@ const timeIs = () => {
                         increaseQuantity(item.name, item.extras)
                       }/>
                       </div>
-                    </div>
-                    <p>
-                      {item.protein ? (
-                        <b>{item.protein.toUpperCase()}</b>
-                      ) : (
-                        <b>NO PROTEIN</b>
-                      )}
-                    </p>
-                    {item.extras &&
-                      item.extras.map((extra, idx) => (
-                        <div
-                          style={{
-                            flexDirection: "row",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "-20px",
-                          }}
-                        >
-                          <p key={idx}>{extra.type} </p>
-                          <p> £{extra.price.toFixed(2)}</p>
-                        </div>
-                      ))}
                     <p style={{ textAlign: "right", fontWeight: "bold" }}>
                       £{(item.price * item.quantity).toFixed(2)}{" "}
                       {/* Updated subtotal */}
                     </p>
+                      </div>  
                   </CartItem>
-                ))
+                )})
               ) : (
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
                   No items in your cart
