@@ -292,7 +292,15 @@ export const MenuConfig = [
                         price: 0.75
                     },
                     {
-                        type: 'Double Protein',
+                        type: 'Extra Beef',
+                        price: 2.00
+                    },
+                    {
+                        type: 'Extra Chicken',
+                        price: 2.00
+                    },
+                    {
+                        type: 'Extra Spicy Bean',
                         price: 2.00
                     }
               

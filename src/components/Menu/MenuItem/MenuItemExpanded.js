@@ -8,7 +8,6 @@ const MenuItemExpanded = ({ item, onClose }) => {
     e.stopPropagation();
   };
 
-console.log('item.extras => ', item.extras)
   return (
     <ContentContainer onClick={handleContentClick}>
       <IoMdCloseCircleOutline

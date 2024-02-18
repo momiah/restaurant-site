@@ -41,7 +41,7 @@ const timeIs = () => {
       // Update the state with the formatted date and time
       setDateTime(formattedDateTime);
   
-      console.log('here', dateTime)
+
 }
 
   const [total, setTotal] = useState(0);
@@ -77,7 +77,7 @@ const timeIs = () => {
     toggleCart(false);
     e.stopPropagation();
     timeIs()
-    console.log('date time', dateTime)
+
   };
 
   const toggleCartItems = () => {
@@ -205,8 +205,8 @@ const timeIs = () => {
       );
   
       const data = await res.json();
-      console.log('data', data)
-  
+ 
+        console.log('cart items')
       if (data?.id && data?.url) {
         await setDoc(doc(db, "orders", data.id), {
           ...formData,
@@ -247,7 +247,7 @@ const timeIs = () => {
   };
 
   const itemQuantity = cartItems.map(item => item.quantity).reduce((acc, currentVal) => acc + currentVal, 0)
-console.log('item quantity', itemQuantity)
+
 
   if (!isCartOpen) return null;
 
@@ -298,7 +298,7 @@ console.log('item quantity', itemQuantity)
                   const extrasPrice = item.extras.map(extra => extra.price).reduce((acc, currentVal) => acc + currentVal, 0)
                   
                   const originalPrice = (item.price - extrasPrice) * item.quantity
-                  console.log('item🚫🚫🚫', originalPrice)
+                
                   return (
                   <CartItem key={index}>
                     <div

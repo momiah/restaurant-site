@@ -24,15 +24,11 @@ const ItemDetails = ({
   const [quantity, setQuantity] = useState(0);
   const { addToCart, toggleCart, cartItems, setCartItems } = useCart();
 
-  console.log("extras =>", extras);
   // useEffect(() => {
   //   if(!selectedExtras && !proteins && !secondProteins){
   //     setTotalPrice(price)
   //   }
   // }, [selectedExtras, proteins, secondProteins, price])
-
-  console.log(totalPrice);
-  console.log(selectedExtras);
 
   useEffect(() => {
     let extrasPrice = 0;
@@ -41,7 +37,7 @@ const ItemDetails = ({
       if (extra) {
         extrasPrice += extra.price;
       }
-      console.log("extras price is =>", extrasPrice);
+  
     });
     setTotalPrice(price + extrasPrice);
   }, [selectedExtras, price, extras]);
