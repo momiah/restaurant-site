@@ -40,7 +40,6 @@ const ItemContainer = styled.div({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  overflow: 'auto',
   height: "80%", // Changed to percentage-based value
   "@media (max-width: 767px)": {
     flexDirection: "column",
@@ -67,8 +66,8 @@ const ContentContainer = styled.div({
   position: "relative",
   width: "40%",
   margin: "5% auto",
-  maxHeight: "80vh",
-  overflowY: "auto",
+  maxHeight: "90vh",
+  overflow: "auto",
   "@media (max-width: 767px)": {
     width: "90%",
     padding: "10px 10px 20px",

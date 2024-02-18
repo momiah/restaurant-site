@@ -181,7 +181,7 @@ const ItemDetails = ({
       <p>{description}</p>
 
 
-      <div style={{ overflow: 'auto'}}>
+      <div style={{ overflow: 'auto', height: '40vh'}}>
         {extras &&
           extras.length > 0 && ( // Check if extras exist and has data
             <ExtrasContainer>

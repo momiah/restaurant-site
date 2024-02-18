@@ -343,10 +343,10 @@ console.log('item quantity', itemQuantity)
                             flexDirection: "row",
                             display: "flex",
                             justifyContent: "space-between",
-                            marginTop: "-20px",
+                            marginTop: "-10px",
                           }}
                         >
-                          <p key={idx}>{extra.type} </p>
+                          <p key={idx} style={{color: '#509B00'}}>{extra.type} </p>
                           <p> £{extrasPrice.toFixed(2)}</p>
                         </div>
                       )})}
