@@ -1,0 +1,58 @@
+rules_version = '2';
+
+// Multi-tenant Firestore rules.
+// - Restaurant config + menu are world-readable (the public website needs them).
+// - Orders can be created by the site, but only read/managed by the restaurant's
+//   authenticated owner. The Cloud Functions webhook uses the Admin SDK, which
+//   bypasses these rules, so it can still update payment status.
+// - Everything not matched below is denied by default.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The restaurantId the signed-in user (a dashboard owner) is tied to.
+    function ownerRestaurantId() {
+      return get(/databases/$(database)/documents/owners/$(request.auth.uid)).data.restaurantId;
+    }
+    function isOwnerOf(restaurantId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/owners/$(request.auth.uid))
+        && ownerRestaurantId() == restaurantId;
+    }
+
+    // Public config, editable only by the owning restaurant's owner.
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow write: if isOwnerOf(restaurantId);
+
+      // Menu (and future loyalty subcollections) inherit the same ownership.
+      match /{document=**} {
+        allow read: if true;
+        allow write: if isOwnerOf(restaurantId);
+      }
+    }
+
+    // Hostname -> restaurant lookup used to resolve the tenant. Read-only to clients.
+    match /domains/{hostname} {
+      allow read: if true;
+      allow write: if false; // managed by admin/onboarding tooling
+    }
+
+    // Maps a dashboard user to their restaurant. Readable only by that user.
+    match /owners/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // set during onboarding via admin tooling
+    }
+
+    // Orders live top-level, scoped by restaurantId.
+    match /orders/{orderId} {
+      // The website creates a pending order; it must name a restaurant and start unpaid.
+      allow create: if request.resource.data.restaurantId is string
+        && request.resource.data.restaurantId.size() > 0
+        && request.resource.data.payment_status == "pending";
+      // Only the restaurant's owner may read its orders.
+      allow read: if isOwnerOf(resource.data.restaurantId);
+      // Payment status is set by the Stripe webhook (Admin SDK); clients can't mutate.
+      allow update, delete: if false;
+    }
+  }
+}

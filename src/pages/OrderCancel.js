@@ -1,7 +1,14 @@
 import React from "react";
 import styled from "styled-components";
+import { useRestaurant } from "../restaurant/RestaurantContext";
 
-const OrderSuccess = () => {
+const OrderCancel = () => {
+  const { restaurant } = useRestaurant();
+  const instagramHandle = restaurant?.contact?.instagram;
+  const instagramUrl = instagramHandle
+    ? `https://www.instagram.com/${instagramHandle}/`
+    : null;
+
   return (
     <CancelPage>
       <CancelContainer>
@@ -9,15 +16,16 @@ const OrderSuccess = () => {
         <CancelHeading>Order Cancelled</CancelHeading>
         <BackButton href="/">Back to menu</BackButton>
       </CancelContainer>
-      <ImageContainer>
-        <ImageHeader>Follow us on instagram!</ImageHeader>
-        <a href="https://www.instagram.com/tacomonsteruk/">
-        <Image
-          src={require("../images/instagram-logo-gradient-transparent.png")}
-
-        />
-        </a>
-      </ImageContainer>
+      {instagramUrl && (
+        <ImageContainer>
+          <ImageHeader>Follow us on instagram!</ImageHeader>
+          <a href={instagramUrl}>
+            <Image
+              src={require("../images/instagram-logo-gradient-transparent.png")}
+            />
+          </a>
+        </ImageContainer>
+      )}
     </CancelPage>
   );
 };
@@ -119,4 +127,4 @@ const Image = styled.img({
   },
 });
 
-export default OrderSuccess;
+export default OrderCancel;

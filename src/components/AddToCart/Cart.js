@@ -6,8 +6,9 @@ import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import {
   getUserLocation,
-  isWithin2Miles,
+  isWithinRadius,
 } from "../../LocationVerifier/LocationVerifier";
+import { useRestaurant } from "../../restaurant/RestaurantContext";
 import Popup from "../Modals/Popup";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { FaRegPlusSquare, FaRegMinusSquare } from "react-icons/fa";
@@ -21,6 +22,8 @@ const Cart = () => {
     increaseQuantity,
     decreaseQuantity,
   } = useCart();
+  const { restaurant, restaurantId } = useRestaurant();
+  const ordering = restaurant?.ordering || {};
   const [isCartExpanded, setIsCartExpanded] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -111,10 +114,16 @@ const timeIs = () => {
       );
       return;
     } else if (formData.postCode) {
-      // Check if the first three characters are not in the specified list
-      const validPrefixes = ["EN1", "EN2", "EN3", "EN7", "EN8", "EN9"];
+      // Postcode allow-list comes from the restaurant's ordering config.
+      const validPrefixes = ordering.allowedPostcodePrefixes || [];
+      const normalisedPostcode = formData.postCode
+        .toUpperCase()
+        .replace(/\s/g, "");
       if (
-        !validPrefixes.some((prefix) => formData.postCode.startsWith(prefix))
+        validPrefixes.length > 0 &&
+        !validPrefixes.some((prefix) =>
+          normalisedPostcode.startsWith(prefix.toUpperCase().replace(/\s/g, ""))
+        )
       ) {
         // Display the popup if the condition is not met
         setPopup(
@@ -133,9 +142,17 @@ const timeIs = () => {
       const location = await getUserLocation();
       if (location) {
         const { latitude, longitude } = location;
-        const within2Miles = isWithin2Miles(latitude, longitude);
+        const radiusMiles = ordering.deliveryRadiusMiles ?? 2;
+        const restaurantLocation = restaurant?.location || {};
+        const withinRadius = isWithinRadius(
+          latitude,
+          longitude,
+          restaurantLocation.lat,
+          restaurantLocation.lng,
+          radiusMiles
+        );
 
-        if (within2Miles) {
+        if (withinRadius) {
           handlePaymentProcessing();
         } else {
           setPopup(
@@ -195,21 +212,26 @@ const timeIs = () => {
           cartItems,
           total,
           orderType: formData.orderType,
+          restaurantId,
         }),
         redirect: "follow",
       };
-  
+
+      // Base Cloud Functions URL comes from env; the restaurant is identified in the body.
+      const functionsBaseUrl =
+        process.env.REACT_APP_FUNCTIONS_URL ||
+        "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments";
       const res = await fetch(
-        "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments/stripe-session",
+        `${functionsBaseUrl}/stripe-session`,
         requestOptions
       );
-  
+
       const data = await res.json();
- 
-        console.log('cart items')
+
       if (data?.id && data?.url) {
         await setDoc(doc(db, "orders", data.id), {
           ...formData,
+          restaurantId,
           orderItems: cartItems,
           id: data.id,
           payment_status: "pending",

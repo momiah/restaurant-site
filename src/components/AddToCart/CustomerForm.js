@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRestaurant } from '../../restaurant/RestaurantContext';
 
 const CustomerForm = ({ formData, setFormData }) => {
+  const { restaurant } = useRestaurant();
+  const mapsEmbedUrl = restaurant?.location?.mapsEmbedUrl;
+  const restaurantName = restaurant?.name || 'Restaurant';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,15 +86,17 @@ const CustomerForm = ({ formData, setFormData }) => {
               required
             />
           </InputContainer>
-          <MapsContainer>
-          <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d4948.712907721025!2d-0.0417565!3d51.6716181!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761f49f9cd05d7%3A0xf86d6a1bdb3aa431!2sTaco%20Monster!5e0!3m2!1sen!2suk!4v1696160226658!5m2!1sen!2suk" 
-           allowfullscreen="" 
-           loading="lazy" 
-           referrerpolicy="no-referrer-when-downgrade"
-           title='TacoMonster location'
-           >
-          </iframe>
-      </MapsContainer>
+          {mapsEmbedUrl && (
+            <MapsContainer>
+              <iframe
+                src={mapsEmbedUrl}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`${restaurantName} location`}
+              ></iframe>
+            </MapsContainer>
+          )}
 
         </>
       )}
