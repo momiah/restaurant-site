@@ -1,12 +1,17 @@
 import React from "react";
-import { MenuConfig } from "./Menu.config";
 import MenuItem from "./MenuItem/MenuItem";
 import styled from "styled-components";
 import { IoIosArrowDropupCircle } from "react-icons/io";
+import { useRestaurant } from "../../restaurant/RestaurantContext";
+import { useMenu } from "../../restaurant/useMenu";
 
 
 
 const Menu = () => {
+  const { restaurant, restaurantId } = useRestaurant();
+  const { menu, loading, error } = useMenu(restaurantId);
+  const logoUrl = restaurant?.theme?.logoUrl;
+  const accentColor = restaurant?.theme?.colors?.accent || "#FF8C00";
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -26,20 +31,24 @@ const Menu = () => {
 
   return (
     <div style={container}>
-      <Image src={require("../../images/tacomonster.png")} />
+      {logoUrl && <Image src={logoUrl} alt={restaurant?.name || "Menu"} />}
+      {loading && <Status>Loading menu…</Status>}
+      {!loading && error && <Status>Menu is unavailable right now.</Status>}
+      {!loading && !error && menu.length === 0 && (
+        <Status>No menu items yet.</Status>
+      )}
       <MenuNavContainer>
-      {MenuConfig.map((menuItem) => (
+      {menu.map((menuItem) => (
           <MenuNav key={menuItem.category} onClick={() => scrollToCategory(menuItem.category)}>
-             {/* <CategoryImage src={menuItem.items[0].imageUrl} alt={menuItem.category} /> */}
             {menuItem.category.toUpperCase()}
           </MenuNav>
         ))}
       </MenuNavContainer>
-      {MenuConfig.map((menuItem, index) => (
-        <MenuItem menuItem={menuItem} key={index}  />
+      {menu.map((menuItem, index) => (
+        <MenuItem menuItem={menuItem} key={menuItem.id || index}  />
       ))}
 
-<IoIosArrowDropupCircle size={60} color="#FF8C00" onClick={scrollToTop}/>
+<IoIosArrowDropupCircle size={60} color={accentColor} onClick={scrollToTop}/>
     </div>
   );
 };
@@ -124,6 +133,13 @@ const MenuNavContainer = styled.div({
 const Image = styled.img({
   width: 150,
   height: 150,
+  objectFit: "contain",
+});
+
+const Status = styled.p({
+  fontSize: "1rem",
+  color: "#6b6560",
+  margin: "20px 0",
 });
 
 const CategoryImage = styled.img({
