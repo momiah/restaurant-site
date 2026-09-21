@@ -58,20 +58,24 @@ app.post("/stripe-session", async (req, res) => {
 });
 
 app.post("/checkout-webhook", express.raw({type: "application/json"}), async (request, response) => {
-  const event = request.body;
-  // const webhook_secret = functions.config().stripe.webhook_secret;
-  // Only verify the event if you have an endpoint secret defined.
-  // Otherwise use the basic event deserialized with JSON.parse
-  // if (webhook_secret) {
-  //   // Get the signature sent by Stripe
-  //   const signature = request.headers["stripe-signature"];
-  //   try {
-  //     event = stripe.webhooks.constructEvent(request.body, signature, webhook_secret);
-  //   } catch (err) {
-  //     console.log(`⚠️  Webhook signature verification failed.`, err.message);
-  //     return response.status(400).send(`Webhook Error: ${err.message} ${JSON.stringify(request.body)}`);
-  //   }
-  // }
+  // Verify the event genuinely came from Stripe using the webhook signing secret.
+  // On Cloud Functions the untouched request bytes are exposed as request.rawBody;
+  // the parsed body cannot be used for signature verification.
+  const webhookSecret = functions.config().stripe.webhook_secret;
+
+  if (!webhookSecret) {
+    console.error("Stripe webhook secret is not configured; rejecting unverified event.");
+    return response.status(500).send("Webhook secret not configured");
+  }
+
+  let event;
+  const signature = request.headers["stripe-signature"];
+  try {
+    event = stripe.webhooks.constructEvent(request.rawBody, signature, webhookSecret);
+  } catch (err) {
+    console.error("⚠️  Webhook signature verification failed.", err.message);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
   // Handle the checkout.session.completed event
   if (event.type === "checkout.session.completed") {
