@@ -3,6 +3,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import styled from "styled-components";
 import { useCart } from "../components/AddToCart/CartContext";
+import { useRestaurant } from "../restaurant/RestaurantContext";
 import "../index.css";
 
 const OrderDetails = ({ data }) => {
@@ -41,10 +42,18 @@ const OrderDetails = ({ data }) => {
 const OrderSuccess = () => {
   const [data, setData] = useState({});
   const { setCartItems } = useCart();
+  const { restaurant } = useRestaurant();
   // get session_id from the URL
   const urlParams = new URLSearchParams(window.location.search);
   const session_id = urlParams.get("session_id");
-  const collectionAddress = "cloud kitchen, 644 Hertford Rd, Enfield EN3 6LZ";
+  const collectionAddress =
+    restaurant?.ordering?.collectionAddress ||
+    restaurant?.address?.formatted ||
+    "";
+  const instagramHandle = restaurant?.contact?.instagram;
+  const instagramUrl = instagramHandle
+    ? `https://www.instagram.com/${instagramHandle}/`
+    : null;
 
   useEffect(() => {
     if (data.payment_status === "paid") {
@@ -84,14 +93,16 @@ const OrderSuccess = () => {
         )}
       </SuccessContainer>
 
-      <ImageContainer>
-        <ImageHeader>Follow us on instagram!</ImageHeader>
-        <a href="https://www.instagram.com/tacomonsteruk/">
-          <Image
-            src={require("../images/instagram-logo-gradient-transparent.png")}
-          />
-        </a>
-      </ImageContainer>
+      {instagramUrl && (
+        <ImageContainer>
+          <ImageHeader>Follow us on instagram!</ImageHeader>
+          <a href={instagramUrl}>
+            <Image
+              src={require("../images/instagram-logo-gradient-transparent.png")}
+            />
+          </a>
+        </ImageContainer>
+      )}
     </SuccessPage>
   );
 };

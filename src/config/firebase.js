@@ -1,25 +1,21 @@
-// Import the functions you need from the SDKs you need
+// Firebase is a PLATFORM-level resource: one project holds every restaurant's data,
+// scoped by restaurantId. Config comes from build-time env vars (see .env.example)
+// so nothing restaurant- or project-specific is baked into source. The fallback
+// values keep local development working when no .env is present.
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-// import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyD3ehzE8DkNklEK5f3X_mZvSm7ULTcqtdY",
-  authDomain: "tacomonster-a73fa.firebaseapp.com",
-  projectId: "tacomonster-a73fa",
-  storageBucket: "tacomonster-a73fa.appspot.com",
-  messagingSenderId: "772366282257",
-  appId: "1:772366282257:web:260eea70453f26aefb4bb0",
-  measurementId: "G-F7GS8X2PC2",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyD3ehzE8DkNklEK5f3X_mZvSm7ULTcqtdY",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "tacomonster-a73fa.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "tacomonster-a73fa",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "tacomonster-a73fa.appspot.com",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "772366282257",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:772366282257:web:260eea70453f26aefb4bb0",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-F7GS8X2PC2",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-// const analytics = getAnalytics(app);
 
 export default app;

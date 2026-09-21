@@ -1,32 +1,48 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import CartIcon from './AddToCart/CartIcon';
+import { useRestaurant } from '../restaurant/RestaurantContext';
 
 const Navbar = () => {
+    const { restaurant } = useRestaurant();
+    const logoUrl = restaurant?.theme?.logoUrl;
+
     return (
-        <nav style={navbarStyle}>
-            <Link to="/" style={navbarItemStyle}>Menu</Link>
-            {/* <Link to="/about" style={navbarItemStyle}>About Us</Link> */}
+        <Nav>
+            <Brand to="/">
+                {logoUrl ? (
+                    <LogoImg src={logoUrl} alt={restaurant?.name || 'Home'} />
+                ) : (
+                    restaurant?.name || 'Menu'
+                )}
+            </Brand>
             <CartIcon size={30} isNavBar/>
-        </nav>
+        </Nav>
     );
 };
 
-const navbarStyle = {
-    // position: 'sticky',
-    // top: 0,
-    // zIndex: 1,
+// Colours come from the restaurant's theme via styled-components' ThemeProvider.
+const Nav = styled.nav(({ theme }) => ({
     display: 'flex',
+    alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#333',
-    padding: '1rem'
-  };
-  
-  const navbarItemStyle = {
-    color: 'white',
+    backgroundColor: theme.colors.navBar,
+    padding: '1rem',
+}));
+
+const Brand = styled(Link)(({ theme }) => ({
+    color: theme.colors.navBarText,
     textDecoration: 'none',
-    fontSize: '1.2rem'
-  };
-  
+    fontSize: '1.2rem',
+    fontFamily: theme.fonts.heading,
+    display: 'flex',
+    alignItems: 'center',
+}));
+
+const LogoImg = styled.img({
+    height: 40,
+    width: 'auto',
+});
 
 export default Navbar;
