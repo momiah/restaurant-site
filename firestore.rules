@@ -5,9 +5,16 @@ rules_version = '2';
 // - Orders can be created by the site, but only read/managed by the restaurant's
 //   authenticated owner. The Cloud Functions webhook uses the Admin SDK, which
 //   bypasses these rules, so it can still update payment status.
+// - MenuDock platform admins (users with the `admin` custom claim) manage every
+//   restaurant and can read all orders — this is what powers the admin console.
 // - Everything not matched below is denied by default.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Platform super-admin: set the `admin: true` custom claim via the Admin SDK.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
 
     // The restaurantId the signed-in user (a dashboard owner) is tied to.
     function ownerRestaurantId() {
@@ -19,28 +26,34 @@ service cloud.firestore {
         && ownerRestaurantId() == restaurantId;
     }
 
-    // Public config, editable only by the owning restaurant's owner.
+    // Public config; editable by the owning restaurant's owner or a platform admin.
     match /restaurants/{restaurantId} {
       allow read: if true;
-      allow write: if isOwnerOf(restaurantId);
+      allow write: if isAdmin() || isOwnerOf(restaurantId);
 
       // Menu (and future loyalty subcollections) inherit the same ownership.
       match /{document=**} {
         allow read: if true;
-        allow write: if isOwnerOf(restaurantId);
+        allow write: if isAdmin() || isOwnerOf(restaurantId);
       }
     }
 
-    // Hostname -> restaurant lookup used to resolve the tenant. Read-only to clients.
+    // Hostname -> restaurant lookup used to resolve the tenant. Admin-managed.
     match /domains/{hostname} {
       allow read: if true;
-      allow write: if false; // managed by admin/onboarding tooling
+      allow write: if isAdmin();
     }
 
-    // Maps a dashboard user to their restaurant. Readable only by that user.
+    // Maps a dashboard user to their restaurant. Readable by that user or an admin.
     match /owners/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+
+    // Admin directory (fallback admin check for the console). Readable by that admin.
+    match /admins/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false; // set during onboarding via admin tooling
+      allow write: if false; // provisioned out-of-band
     }
 
     // Orders live top-level, scoped by restaurantId.
@@ -49,8 +62,8 @@ service cloud.firestore {
       allow create: if request.resource.data.restaurantId is string
         && request.resource.data.restaurantId.size() > 0
         && request.resource.data.payment_status == "pending";
-      // Only the restaurant's owner may read its orders.
-      allow read: if isOwnerOf(resource.data.restaurantId);
+      // The restaurant's owner reads its orders; a platform admin reads all orders.
+      allow read: if isAdmin() || isOwnerOf(resource.data.restaurantId);
       // Payment status is set by the Stripe webhook (Admin SDK); clients can't mutate.
       allow update, delete: if false;
     }
