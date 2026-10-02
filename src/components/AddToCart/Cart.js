@@ -220,7 +220,7 @@ const timeIs = () => {
       // Base Cloud Functions URL comes from env; the restaurant is identified in the body.
       const functionsBaseUrl =
         process.env.REACT_APP_FUNCTIONS_URL ||
-        "https://us-central1-tacomonster-a73fa.cloudfunctions.net/payments";
+        "https://us-central1-menudock-platform.cloudfunctions.net/payments";
       const res = await fetch(
         `${functionsBaseUrl}/stripe-session`,
         requestOptions

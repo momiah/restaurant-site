@@ -6,13 +6,13 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyD3ehzE8DkNklEK5f3X_mZvSm7ULTcqtdY",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "tacomonster-a73fa.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "tacomonster-a73fa",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "tacomonster-a73fa.appspot.com",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "772366282257",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:772366282257:web:260eea70453f26aefb4bb0",
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-F7GS8X2PC2",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyAm1bPTxm9csx2HYISUm35xlwUahGKxg8Q",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "menudock-platform.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "menudock-platform",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "menudock-platform.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "824146300662",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:824146300662:web:9b55170f16fd98bb62e6d7",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-6V9SW20WHC",
 };
 
 const app = initializeApp(firebaseConfig);
