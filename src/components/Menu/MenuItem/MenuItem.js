@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import MenuItemExpanded from "./MenuItemExpanded";
-import { NoImageAvailable } from "../Menu.config";
+import { useRestaurant } from "../../../restaurant/RestaurantContext";
+import { defaultTheme } from "../../../restaurant/defaultTheme";
 
 const MenuItem = ({ menuItem }) => {
+  const { restaurant } = useRestaurant();
+  const noImageUrl = restaurant?.theme?.noImageUrl || defaultTheme.noImageUrl;
   const [ItemExpanded, setItemExpanded] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -22,7 +25,7 @@ const MenuItem = ({ menuItem }) => {
         {menuItem.category.toUpperCase()}
       </h2>
       {menuItem.items.map((items, index) => {
-        const imagePath = items.imageUrl ? items.imageUrl : NoImageAvailable;
+        const imagePath = items.imageUrl ? items.imageUrl : noImageUrl;
         return (
           <Item onClick={() => handleItemClick(items)} key={index}>
             <ItemInfoContainer>
