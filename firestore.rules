@@ -1,0 +1,91 @@
+rules_version = '2';
+
+// Multi-tenant Firestore rules.
+// - Restaurant config + menu are world-readable (the public website needs them).
+// - Orders can be created by the site, but only read/managed by the restaurant's
+//   authenticated owner. The Cloud Functions webhook uses the Admin SDK, which
+//   bypasses these rules, so it can still update payment status.
+// - MenuDock platform admins (users with the `admin` custom claim) manage every
+//   restaurant and can read all orders — this is what powers the admin console.
+// - Everything not matched below is denied by default.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Platform super-admin: set the `admin: true` custom claim via the Admin SDK.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // The restaurantId the signed-in user (a dashboard owner) is tied to.
+    function ownerRestaurantId() {
+      return get(/databases/$(database)/documents/owners/$(request.auth.uid)).data.restaurantId;
+    }
+    function isOwnerOf(restaurantId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/owners/$(request.auth.uid))
+        && ownerRestaurantId() == restaurantId;
+    }
+
+    // Public config; editable by the owning restaurant's owner or a platform admin.
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow write: if isAdmin() || isOwnerOf(restaurantId);
+
+      // Menu — world-readable (website + loyalty app), admin/owner writes.
+      match /menu/{menuDoc} {
+        allow read: if true;
+        allow write: if isAdmin() || isOwnerOf(restaurantId);
+      }
+
+      // Offers & deals (loyalty, Phase 2) — world-readable, admin/owner writes.
+      match /offers/{offerId} {
+        allow read: if true;
+        allow write: if isAdmin() || isOwnerOf(restaurantId);
+      }
+
+      // Loyalty customer profiles — PRIVATE to that customer (or the restaurant/admin).
+      // NOTE: Phase 1 lets the customer write their own points for simplicity; before
+      // launch, award points server-side (payment webhook) and make points admin-only.
+      match /customers/{uid} {
+        allow read, write: if isAdmin()
+          || isOwnerOf(restaurantId)
+          || (request.auth != null && request.auth.uid == uid);
+        match /{sub=**} {
+          allow read, write: if isAdmin()
+            || isOwnerOf(restaurantId)
+            || (request.auth != null && request.auth.uid == uid);
+        }
+      }
+    }
+
+    // Hostname -> restaurant lookup used to resolve the tenant. Admin-managed.
+    match /domains/{hostname} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Maps a dashboard user to their restaurant. Readable by that user or an admin.
+    match /owners/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+
+    // Admin directory (fallback admin check for the console). Readable by that admin.
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // provisioned out-of-band
+    }
+
+    // Orders live top-level, scoped by restaurantId.
+    match /orders/{orderId} {
+      // The website creates a pending order; it must name a restaurant and start unpaid.
+      allow create: if request.resource.data.restaurantId is string
+        && request.resource.data.restaurantId.size() > 0
+        && request.resource.data.payment_status == "pending";
+      // The restaurant's owner reads its orders; a platform admin reads all orders.
+      allow read: if isAdmin() || isOwnerOf(resource.data.restaurantId);
+      // Payment status is set by the Stripe webhook (Admin SDK); clients can't mutate.
+      allow update, delete: if false;
+    }
+  }
+}
