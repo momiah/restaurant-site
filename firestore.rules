@@ -31,10 +31,30 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin() || isOwnerOf(restaurantId);
 
-      // Menu (and future loyalty subcollections) inherit the same ownership.
-      match /{document=**} {
+      // Menu — world-readable (website + loyalty app), admin/owner writes.
+      match /menu/{menuDoc} {
         allow read: if true;
         allow write: if isAdmin() || isOwnerOf(restaurantId);
+      }
+
+      // Offers & deals (loyalty, Phase 2) — world-readable, admin/owner writes.
+      match /offers/{offerId} {
+        allow read: if true;
+        allow write: if isAdmin() || isOwnerOf(restaurantId);
+      }
+
+      // Loyalty customer profiles — PRIVATE to that customer (or the restaurant/admin).
+      // NOTE: Phase 1 lets the customer write their own points for simplicity; before
+      // launch, award points server-side (payment webhook) and make points admin-only.
+      match /customers/{uid} {
+        allow read, write: if isAdmin()
+          || isOwnerOf(restaurantId)
+          || (request.auth != null && request.auth.uid == uid);
+        match /{sub=**} {
+          allow read, write: if isAdmin()
+            || isOwnerOf(restaurantId)
+            || (request.auth != null && request.auth.uid == uid);
+        }
       }
     }
 
