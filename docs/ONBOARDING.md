@@ -70,8 +70,16 @@ The website resolves which restaurant it is at boot:
 
 ### 5. Create the owner's dashboard login
 
-1. Create a Firebase Auth (email/password) user for the owner.
-2. Add `owners/{uid}` → `{ restaurantId: "<id>", role: "owner" }`.
+One command (from `functions/`, with a service-account key for the platform project):
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json \
+  node scripts/makeOwner.js owner@restaurant.com 'TempPassw0rd!' <restaurant-slug>
+```
+
+It creates the Firebase Auth login (or reuses an existing one), and links it to the
+restaurant via `owners/{uid}`. It's safe to re-run, and refuses to move a login that
+already owns a different restaurant. Give the owner the email + temporary password.
 
 They can now sign in to the dashboard and see **only** their restaurant's orders and
 settings — enforced by the Firestore rules, not just the UI.
@@ -87,3 +95,16 @@ settings — enforced by the Firestore rules, not just the UI.
 | Owner login | Firebase Auth user + `owners/{uid}` |
 
 That's the whole onboarding. Everything else is shared platform code.
+
+## Testing the security rules
+
+`rules-tests/` checks who can read and write what (owners only edit their own menu,
+can't touch payouts/fees, customer profiles stay private, etc.) against the local
+Firebase emulator — it never touches production. Requires Java 11+.
+
+```bash
+cd rules-tests && npm install && npm test
+```
+
+Run it before every `firebase deploy --only firestore:rules,storage`.
+
