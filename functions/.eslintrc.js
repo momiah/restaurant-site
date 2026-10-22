@@ -1,10 +1,12 @@
 module.exports = {
+  // Self-contained: don't inherit the website's React config from the root.
+  root: true,
   env: {
     es6: true,
     node: true,
   },
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 2020, // Node 18 runtime: optional chaining, ??, etc.
   },
   extends: ["eslint:recommended", "google"],
   rules: {
