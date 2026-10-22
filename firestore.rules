@@ -13,7 +13,7 @@ service cloud.firestore {
 
     // Platform super-admin: set the `admin: true` custom claim via the Admin SDK.
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth != null && request.auth.token.get("admin", false) == true;
     }
 
     // The restaurantId the signed-in user (a dashboard owner) is tied to.
@@ -26,10 +26,19 @@ service cloud.firestore {
         && ownerRestaurantId() == restaurantId;
     }
 
-    // Public config; editable by the owning restaurant's owner or a platform admin.
+    // Fields only MenuDock may change: where payouts go, what we charge, whether the
+    // restaurant is live, and the slug its website/app resolve by.
+    function changesCommercialFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(["payments", "billing", "status", "slug"]);
+    }
+
+    // Public config. Only MenuDock creates or removes restaurants; an owner keeps their
+    // own details up to date but can never touch the commercial fields above.
     match /restaurants/{restaurantId} {
       allow read: if true;
-      allow write: if isAdmin() || isOwnerOf(restaurantId);
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (isOwnerOf(restaurantId) && !changesCommercialFields());
 
       // Menu — world-readable (website + loyalty app), admin/owner writes.
       match /menu/{menuDoc} {
