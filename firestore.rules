@@ -85,16 +85,32 @@ service cloud.firestore {
       allow write: if false; // provisioned out-of-band
     }
 
+    // Kitchen workflow for a paid order: placed -> preparing -> ready -> completed.
+    // Wording per order type (e.g. "ready" = "Out for delivery" / "Ready to collect")
+    // lives in the apps; see docs/ORDER_STATUS.md.
+    function isStatusUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(["status", "statusTimes"])
+        && resource.data.payment_status == "paid"
+        && request.resource.data.status in ["placed", "preparing", "ready", "completed"];
+    }
+
     // Orders live top-level, scoped by restaurantId.
     match /orders/{orderId} {
       // The website creates a pending order; it must name a restaurant and start unpaid.
       allow create: if request.resource.data.restaurantId is string
         && request.resource.data.restaurantId.size() > 0
         && request.resource.data.payment_status == "pending";
-      // The restaurant's owner reads its orders; a platform admin reads all orders.
-      allow read: if isAdmin() || isOwnerOf(resource.data.restaurantId);
-      // Payment status is set by the Stripe webhook (Admin SDK); clients can't mutate.
-      allow update, delete: if false;
+      // A customer follows their order by its id. Ids are Stripe Checkout session ids
+      // (long and unguessable) that only the customer receives, in their confirmation
+      // link. Listing or querying orders stays restricted to the owner and admins.
+      allow get: if true;
+      allow list: if isAdmin() || isOwnerOf(resource.data.restaurantId);
+      // The owner moves their own paid orders through the kitchen workflow. Nothing else
+      // on an order can change from a client: payment and order numbers come from the
+      // Stripe webhook (Admin SDK).
+      allow update: if isOwnerOf(resource.data.restaurantId) && isStatusUpdate();
+      allow delete: if false;
     }
   }
 }
