@@ -28,5 +28,21 @@ service firebase.storage {
         && request.resource.contentType.matches('image/.*');
       allow delete: if isOwnerOf(restaurantId);
     }
+
+    // Menu files an owner uploads for the menu import (photo, PDF, Word, Excel, CSV).
+    // Private: only the owner/admins can read them; the importMenu function deletes
+    // each one once it has been read.
+    match /menu-imports/{restaurantId}/{fileName} {
+      allow read, delete: if isAdmin() || isOwnerOf(restaurantId);
+      allow create: if (isAdmin() || isOwnerOf(restaurantId))
+        && request.resource.size < 20 * 1024 * 1024
+        && (request.resource.contentType.matches('image/(jpeg|png|gif|webp)')
+          || request.resource.contentType in [
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv', 'text/plain', 'text/comma-separated-values', 'application/csv',
+          ]);
+    }
   }
 }

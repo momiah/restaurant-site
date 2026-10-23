@@ -11,7 +11,10 @@ you set per client.
 - Cloud Functions deployed from `functions/` with Stripe config set:
   - `firebase functions:config:set stripe.token="sk_live_…" stripe.webhook_secret="whsec_…"`
   - optional platform fee: `stripe.application_fee_percent="10"`
-- Firestore rules deployed: `firebase deploy --only firestore:rules`.
+- Menu import (owners scan a photo/PDF/Word/Excel menu from the dashboard) needs a Claude
+  API key, stored as a Functions secret — never in code or `functions:config`:
+  `firebase functions:secrets:set ANTHROPIC_API_KEY` (paste the key when prompted).
+- Firestore + Storage rules deployed: `firebase deploy --only firestore:rules,storage`.
 - A **Stripe Connect** platform enabled on your Stripe account.
 
 ## Per-restaurant checklist
