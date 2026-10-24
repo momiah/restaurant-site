@@ -11,7 +11,10 @@ you set per client.
 - Cloud Functions deployed from `functions/` with Stripe config set:
   - `firebase functions:config:set stripe.token="sk_live_…" stripe.webhook_secret="whsec_…"`
   - optional platform fee: `stripe.application_fee_percent="10"`
-- Firestore rules deployed: `firebase deploy --only firestore:rules`.
+- Menu import (owners scan a photo/PDF/Word/Excel menu from the dashboard) needs a Claude
+  API key, stored as a Functions secret — never in code or `functions:config`:
+  `firebase functions:secrets:set ANTHROPIC_API_KEY` (paste the key when prompted).
+- Firestore + Storage rules deployed: `firebase deploy --only firestore:rules,storage`.
 - A **Stripe Connect** platform enabled on your Stripe account.
 
 ## Per-restaurant checklist
@@ -107,4 +110,12 @@ cd rules-tests && npm install && npm test
 ```
 
 Run it before every `firebase deploy --only firestore:rules,storage`.
+
+> Behind an HTTPS proxy? Run it as `env -u HTTPS_PROXY -u https_proxy npm test`: the
+> Storage emulator sends its Firestore lookups (owner checks) through the proxy otherwise,
+> and owner uploads wrongly fail.
+
+The storage rules read `owners/{uid}` from Firestore to authorise owner uploads. On the
+first `firebase deploy --only storage`, accept the prompt to let Storage read Firestore
+(cross-service rules); without it, owners can't upload menu photos.
 

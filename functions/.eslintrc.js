@@ -17,6 +17,16 @@ module.exports = {
   },
   overrides: [
     {
+      files: ["**/*.test.js"],
+      env: {
+        jest: true,
+      },
+      rules: {
+        "max-len": "off",
+        "require-jsdoc": "off",
+      },
+    },
+    {
       files: ["**/*.spec.*"],
       env: {
         mocha: true,
