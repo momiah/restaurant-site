@@ -1,13 +1,48 @@
 rules_version = '2';
 
 // Restaurant images (logos, hero, menu photos) live under restaurants/{id}/...
-// They are publicly readable (the website shows them) and writable only by a
-// MenuDock platform admin (the admin console uploads them during onboarding).
+// They are publicly readable (the website shows them). A MenuDock platform admin can
+// write anything there (the admin console uploads them during onboarding); a
+// restaurant's owner can add and replace their own menu photos from the dashboard.
 service firebase.storage {
   match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.get("admin", false) == true;
+    }
+    // Owners are linked to one restaurant by owners/{uid} in Firestore.
+    function isOwnerOf(restaurantId) {
+      return request.auth != null
+        && firestore.exists(/databases/(default)/documents/owners/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/owners/$(request.auth.uid)).data.restaurantId == restaurantId;
+    }
+
     match /restaurants/{restaurantId}/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.get("admin", false) == true;
+      allow write: if isAdmin();
+    }
+
+    // Menu item photos. The dashboard resizes them to ~1200px JPEGs before upload.
+    match /restaurants/{restaurantId}/menu/{fileName} {
+      allow create, update: if isOwnerOf(restaurantId)
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isOwnerOf(restaurantId);
+    }
+
+    // Menu files an owner uploads for the menu import (photo, PDF, Word, Excel, CSV).
+    // Private: only the owner/admins can read them; the importMenu function deletes
+    // each one once it has been read.
+    match /menu-imports/{restaurantId}/{fileName} {
+      allow read, delete: if isAdmin() || isOwnerOf(restaurantId);
+      allow create: if (isAdmin() || isOwnerOf(restaurantId))
+        && request.resource.size < 20 * 1024 * 1024
+        && (request.resource.contentType.matches('image/(jpeg|png|gif|webp)')
+          || request.resource.contentType in [
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv', 'text/plain', 'text/comma-separated-values', 'application/csv',
+          ]);
     }
   }
 }
