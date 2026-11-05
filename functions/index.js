@@ -4,6 +4,7 @@ const functions = require("firebase-functions");
 const firestore = require("firebase-admin").initializeApp().firestore();
 const express = require("express");
 const cors = require("cors");
+const {markOrderPaid} = require("./orders");
 const stripe = require("stripe")(functions.config().stripe.token);
 
 // const PORT = 8082;
@@ -146,19 +147,20 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the checkout.session.completed event
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    // Fulfill the purchase...
-
-    // update data in order data with id of session in firestore
-    await firestore.collection("orders").doc(session.id).update({
-      payment_status: session.payment_status,
-      customer_details: session.customer_details,
-      currency: session.currency,
-      created: session.created,
-      status: "active",
-    });
+  // A completed checkout (or a delayed payment method settling later) marks the order
+  // paid, numbers it and puts it in the kitchen queue. On failure, return 500 so
+  // Stripe retries; markOrderPaid is safe to repeat.
+  const paidEvents = [
+    "checkout.session.completed",
+    "checkout.session.async_payment_succeeded",
+  ];
+  if (paidEvents.includes(event.type)) {
+    try {
+      await markOrderPaid(firestore, event.data.object);
+    } catch (err) {
+      console.error("Failed to record paid order", event.data.object.id, err);
+      return response.status(500).send("Failed to record order");
+    }
   }
 
   response.sendStatus(200);

@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { initializeTestEnvironment, assertSucceeds, assertFails } = require("@firebase/rules-unit-testing");
-const { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs } = require("firebase/firestore");
+const { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp } = require("firebase/firestore");
 
 let env;
 const TACO = "taco-monster";
@@ -32,7 +32,8 @@ beforeEach(async () => {
     }
     await setDoc(doc(db, "owners", "tacoOwner"), { restaurantId: TACO, role: "owner" });
     await setDoc(doc(db, "owners", "noodleOwner"), { restaurantId: NOODLE, role: "owner" });
-    await setDoc(doc(db, "orders", "o1"), { restaurantId: TACO, payment_status: "paid", total: 10 });
+    await setDoc(doc(db, "orders", "o1"), { restaurantId: TACO, payment_status: "paid", total: 10, orderNumber: 1001, status: "placed", orderType: "Collection" });
+    await setDoc(doc(db, "orders", "pending1"), { restaurantId: TACO, payment_status: "pending", total: 8 });
     await setDoc(doc(db, "orders", "o2"), { restaurantId: NOODLE, payment_status: "paid", total: 12 });
     await setDoc(doc(db, "restaurants", TACO, "customers", "diner1"), { name: "Ann", points: 40 });
     await setDoc(doc(db, "domains", "order.tacomonster.co.uk"), { restaurantId: TACO });
@@ -97,16 +98,53 @@ describe("owner dashboard — orders", () => {
   it("an owner can live-query their own restaurant's orders", async () => {
     const q = query(collection(tacoOwner(), "orders"), where("restaurantId", "==", TACO));
     const snap = await assertSucceeds(getDocs(q));
-    expect(snap.docs.map((d) => d.id)).toEqual(["o1"]);
+    expect(snap.docs.map((d) => d.id).sort()).toEqual(["o1", "pending1"]);
   });
   it("an owner cannot read another restaurant's orders, or list all orders", async () => {
     await assertFails(getDocs(query(collection(tacoOwner(), "orders"), where("restaurantId", "==", NOODLE))));
     await assertFails(getDocs(collection(tacoOwner(), "orders")));
-    await assertFails(getDoc(doc(tacoOwner(), "orders", "o2")));
   });
   it("nobody can mark an order paid from a client (only the Stripe webhook can)", async () => {
     await assertFails(updateDoc(doc(tacoOwner(), "orders", "o1"), { payment_status: "paid", total: 0 }));
     await assertFails(updateDoc(doc(anon(), "orders", "o1"), { payment_status: "paid" }));
+  });
+});
+
+describe("owner dashboard — order status workflow", () => {
+  const progress = (db, id, status) =>
+    updateDoc(doc(db, "orders", id), { status, [`statusTimes.${status}`]: serverTimestamp() });
+
+  it("an owner can move their own paid order through the kitchen steps", async () => {
+    for (const status of ["preparing", "ready", "completed"]) {
+      await assertSucceeds(progress(tacoOwner(), "o1", status));
+    }
+  });
+  it("an owner can step an order back (undo a mis-tap)", async () => {
+    await assertSucceeds(progress(tacoOwner(), "o1", "ready"));
+    await assertSucceeds(progress(tacoOwner(), "o1", "preparing"));
+  });
+  it("only the known statuses are allowed", async () => {
+    await assertFails(progress(tacoOwner(), "o1", "refunded"));
+    await assertFails(progress(tacoOwner(), "o1", "pending"));
+  });
+  it("an unpaid order cannot be started", async () => {
+    await assertFails(progress(tacoOwner(), "pending1", "preparing"));
+  });
+  it("an owner cannot progress another restaurant's order", async () => {
+    await assertFails(progress(tacoOwner(), "o2", "preparing"));
+  });
+  it("the public and other users cannot progress an order", async () => {
+    await assertFails(progress(anon(), "o1", "completed"));
+    await assertFails(progress(user("someDiner"), "o1", "completed"));
+  });
+  it("a status update cannot also change the total, order number or payment", async () => {
+    await assertFails(updateDoc(doc(tacoOwner(), "orders", "o1"), { status: "preparing", total: 0 }));
+    await assertFails(updateDoc(doc(tacoOwner(), "orders", "o1"), { status: "preparing", orderNumber: 1 }));
+    await assertFails(updateDoc(doc(tacoOwner(), "orders", "o1"), { status: "preparing", payment_status: "refunded" }));
+  });
+  it("nobody can delete an order", async () => {
+    await assertFails(deleteDoc(doc(tacoOwner(), "orders", "o1")));
+    await assertFails(deleteDoc(doc(admin(), "orders", "o1")));
   });
 });
 
@@ -120,8 +158,13 @@ describe("website checkout — creating orders", () => {
   it("an order must name a restaurant", async () => {
     await assertFails(setDoc(doc(anon(), "orders", "cs_3"), { payment_status: "pending", total: 9 }));
   });
-  it("the public cannot read orders (customer details are private)", async () => {
-    await assertFails(getDoc(doc(anon(), "orders", "o1")));
+  it("a customer can follow their own order by its (unguessable) id", async () => {
+    const snap = await assertSucceeds(getDoc(doc(anon(), "orders", "o1")));
+    expect(snap.data()).toMatchObject({ orderNumber: 1001, status: "placed" });
+  });
+  it("the public cannot list or search orders (customer details stay private)", async () => {
+    await assertFails(getDocs(collection(anon(), "orders")));
+    await assertFails(getDocs(query(collection(anon(), "orders"), where("restaurantId", "==", TACO))));
   });
 });
 

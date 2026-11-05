@@ -1,91 +1,124 @@
 import React, { useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import styled from "styled-components";
 import { useCart } from "../components/AddToCart/CartContext";
 import { useRestaurant } from "../restaurant/RestaurantContext";
+import OrderTracker from "../orders/OrderTracker";
+import { isDelivery, orderReference } from "../orders/orderStatus";
 import "../index.css";
 
-const OrderDetails = ({ data }) => {
-  const collectionMessage =
-    "A full receipt has been sent to your email, please allow up to 45 minutes to receive your order. Our address is ";
-
-  return (
-    <OrderDetailsContainer>
-      <Details>
-        <strong>Order ID:</strong>{" "}
-        {(data.id && data.id.slice(-5).toUpperCase()) || "-"}
-      </Details>
-      <Details>
-        <strong>Customer Name:</strong> {data.name || "-"}
-      </Details>
-      {data.address && (
-        <Details>
-          <strong>Address:</strong> {data.address || "-"}
-        </Details>
-      )}
-      <Details>
-        <strong>Contact Number:</strong> {data.contactNumber || "-"}
-      </Details>
-      <Details>
-        <strong>Total:</strong> £{data.total}
-      </Details>
-      <Details>
-        A full receipt has been sent to your email, please allow up to 45
-        minutes to receive your order. If it has been more than 45 minutes feel
-        free to call us on 0207 1234 5678
-      </Details>
-    </OrderDetailsContainer>
-  );
+const formatMoney = (amount, currency = "GBP") => {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return "-";
+  try {
+    return new Intl.NumberFormat("en-GB", { style: "currency", currency: currency.toUpperCase() }).format(value);
+  } catch {
+    return `£${value.toFixed(2)}`;
+  }
 };
 
+const OrderDetails = ({ order, orderId, phone }) => (
+  <OrderDetailsContainer>
+    <Details>
+      <strong>Order number:</strong> <span data-testid="order-ref">{orderReference(order, orderId)}</span>
+    </Details>
+    <Details>
+      <strong>Name:</strong> {order.name || "-"}
+    </Details>
+    {isDelivery(order) && order.address && (
+      <Details>
+        <strong>Delivering to:</strong> {order.address}
+      </Details>
+    )}
+    <Details>
+      <strong>Contact number:</strong> {order.contactNumber || "-"}
+    </Details>
+    <Details>
+      <strong>Total:</strong> {formatMoney(order.total, order.currency || undefined)}
+    </Details>
+    <Note>
+      A receipt has been sent to your email. Keep this page open to follow your
+      order — it updates by itself.
+      {phone && <> Any questions? Call us on <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a>.</>}
+    </Note>
+  </OrderDetailsContainer>
+);
+
 const OrderSuccess = () => {
-  const [data, setData] = useState({});
+  const [order, setOrder] = useState(null);
+  const [notFound, setNotFound] = useState(false);
   const { setCartItems } = useCart();
   const { restaurant } = useRestaurant();
-  // get session_id from the URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const session_id = urlParams.get("session_id");
+  const orderId = new URLSearchParams(window.location.search).get("session_id");
   const collectionAddress =
     restaurant?.ordering?.collectionAddress ||
     restaurant?.address?.formatted ||
     "";
+  const phone = restaurant?.contact?.phone;
   const instagramHandle = restaurant?.contact?.instagram;
   const instagramUrl = instagramHandle
     ? `https://www.instagram.com/${instagramHandle}/`
     : null;
+  const paid = order?.payment_status === "paid";
 
   useEffect(() => {
-    if (data.payment_status === "paid") {
-      setCartItems([]);
+    if (paid) setCartItems([]);
+  }, [paid, setCartItems]);
+
+  // Follow the order live: the payment webhook confirms it, then the kitchen moves it on.
+  useEffect(() => {
+    if (!orderId) {
+      setNotFound(true);
+      return undefined;
     }
-  }, [data]);
-
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      try {
-        const query = await getDoc(doc(db, "orders", session_id));
-        setData(query.data());
-      } catch (error) {
+    return onSnapshot(
+      doc(db, "orders", orderId),
+      (snap) => {
+        setNotFound(!snap.exists());
+        if (snap.exists()) setOrder({ id: snap.id, ...snap.data() });
+      },
+      (error) => {
         console.error(error);
+        setNotFound(true);
       }
-    };
+    );
+  }, [orderId]);
 
-    fetchOrderDetails();
-  }, [session_id]);
+  if (notFound) {
+    return (
+      <SuccessPage>
+        <SuccessContainer>
+          <SuccessHeading>We couldn't find that order</SuccessHeading>
+          <Note>
+            If you've paid, your receipt email has your order details.
+            {phone && <> Call us on <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a> and we'll help.</>}
+          </Note>
+        </SuccessContainer>
+      </SuccessPage>
+    );
+  }
+
+  if (!order) {
+    return (
+      <SuccessPage>
+        <SuccessContainer>
+          <SuccessHeading>Loading your order…</SuccessHeading>
+        </SuccessContainer>
+      </SuccessPage>
+    );
+  }
 
   return (
     <SuccessPage>
       <SuccessContainer>
-        <PartyHat>🎉</PartyHat>
-        <SuccessHeading>Order Success!</SuccessHeading>
-        <DetailsHeading>Here is your order details</DetailsHeading>
-        <OrderDetails data={data} />
-        {data.orderType === "Collection" && (
+        {paid && <PartyHat>🎉</PartyHat>}
+        <SuccessHeading>{paid ? "Thanks for your order!" : "Almost there"}</SuccessHeading>
+        <OrderTracker order={order} />
+        <OrderDetails order={order} orderId={orderId} phone={phone} />
+        {!isDelivery(order) && collectionAddress && (
           <CollectionContainer>
-            <CollectionDetails>
-              Please collect your order from the address below:
-            </CollectionDetails>
+            <CollectionDetails>Collect your order from:</CollectionDetails>
             <CollectionDetails>
               <strong>{collectionAddress}</strong>
             </CollectionDetails>
@@ -99,6 +132,7 @@ const OrderSuccess = () => {
           <a href={instagramUrl}>
             <Image
               src={require("../images/instagram-logo-gradient-transparent.png")}
+              alt="Instagram"
             />
           </a>
         </ImageContainer>
@@ -109,7 +143,7 @@ const OrderSuccess = () => {
 
 const SuccessPage = styled.div({
   width: "100%",
-  height: "100vh", // Take up full height of the viewport
+  minHeight: "100vh",
   display: "flex",
   justifyContent: "flex-start",
   alignItems: "center",
@@ -121,121 +155,72 @@ const SuccessContainer = styled.div({
   width: "40%",
   margin: "20px",
   border: "1px solid #DDDDDD",
-  fontSize: "1.2rem",
   textAlign: "center",
-  padding: "20px",
+  padding: "24px",
   borderRadius: "20px",
   backgroundColor: "#FAFAFA",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  boxSizing: "border-box",
   "@media (max-width: 767px)": {
-    width: "80%",
-    fontSize: "1rem",
+    width: "calc(100% - 32px)",
+    margin: "16px",
+    padding: "16px",
   },
   "@media (min-width: 768px) and (max-width: 1024px)": {
-    width: "60%",
-    fontSize: "1.2rem",
-  },
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    width: "40%",
-    fontSize: "1.5rem",
-    // height: "70%",
+    width: "70%",
   },
 });
 
 const CollectionContainer = styled.div({
-  margin: "20px",
+  width: "100%",
+  marginTop: 16,
   border: "1px solid #DDDDDD",
-  fontSize: "1.2rem",
   textAlign: "center",
-  padding: "20px",
-  borderRadius: "20px",
-  backgroundColor: "#FAFAFA",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  "@media (max-width: 767px)": {
-    width: "90%",
-    fontSize: "1rem",
-  },
-  "@media (min-width: 768px) and (max-width: 1024px)": {
-    width: "60%",
-    fontSize: "1.2rem",
-  },
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    width: "75%",
-    fontSize: "1.5rem",
-    // height: "5%",
-  },
+  padding: "12px",
+  borderRadius: "12px",
+  backgroundColor: "#FFFFFF",
+  boxSizing: "border-box",
 });
 
-const PartyHat = styled.h1({
-  "@media (max-width: 767px)": {
-    width: "90%",
-    fontSize: "4rem",
-    padding: 0,
-    margin: 0,
-  },
-  "@media (min-width: 768px) and (max-width: 1024px)": {
-    width: "60%",
-    fontSize: "1.2rem",
-  },
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    fontSize: "4.5rem",
-    padding: 0,
-    margin: 0,
-  },
+const PartyHat = styled.div({
+  fontSize: "3.5rem",
+  lineHeight: 1,
 });
 
-const SuccessHeading = styled.h2({
-  margin: 5,
-  padding: 0,
-});
-
-const DetailsHeading = styled.h5({
-  margin: 0,
-  padding: 0,
+const SuccessHeading = styled.h1({
+  margin: "8px 0 16px",
+  fontSize: "1.4rem",
 });
 
 const OrderDetailsContainer = styled.div({
-  width: "95%",
-  height: "80%",
+  width: "100%",
   backgroundColor: "#E4E4E4",
   borderRadius: 10,
   textAlign: "left",
-  marginTop: 20,
-  padding: "25px 0",
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    fontSize: "4.5rem",
-    padding: 30,
-    margin: 0,
-    marginTop: 20,
-    height: "60%",
-    width: "75%",
-  },
+  marginTop: 24,
+  padding: "12px 0",
+  boxSizing: "border-box",
 });
 
 const Details = styled.p({
-  fontSize: "0.75rem",
-  margin: "20px 30px",
+  fontSize: "0.95rem",
+  margin: "10px 20px",
   display: "flex",
   justifyContent: "space-between",
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    padding: 20,
-    margin: 0,
-    fontSize: "1rem",
-  },
+  gap: 12,
+});
+
+const Note = styled.p({
+  fontSize: "0.85rem",
+  margin: "14px 20px 6px",
+  color: "#444",
 });
 
 const CollectionDetails = styled.p({
-  fontSize: "0.75rem",
-
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    padding: 5,
-    margin: 0,
-    fontSize: "1rem",
-  },
+  fontSize: "0.95rem",
+  margin: 4,
 });
 
 const ImageContainer = styled.div({
@@ -243,9 +228,9 @@ const ImageContainer = styled.div({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  width: "full",
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
+  "@media (min-width: 1025px)": {
     flexDirection: "row",
+    gap: 16,
   },
 });
 
@@ -256,12 +241,8 @@ const ImageHeader = styled.h3({
 });
 
 const Image = styled.img({
-  width: 140,
-  height: 100,
-  "@media (min-width: 1025px) and (max-width: 1920px)": {
-    width: 70,
-    height: 50,
-  },
+  width: 70,
+  height: 50,
 });
 
 export default OrderSuccess;
