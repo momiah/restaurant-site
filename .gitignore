@@ -25,3 +25,6 @@ yarn-error.log*
 src/images/cheesy-fries.psd
 src/images/monster-fries.psd
 src/images/*.psd
+
+# Non-secret Cloud Functions params (see the file's header); secrets never go here.
+!functions/.env

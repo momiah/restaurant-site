@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable max-len */
 const functions = require("firebase-functions");
+const {defineInt, defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 admin.initializeApp();
 const firestore = admin.firestore();
@@ -8,7 +9,24 @@ const express = require("express");
 const cors = require("cors");
 const {markOrderPaid} = require("./orders");
 const menuImport = require("./menuImport");
-const stripe = require("stripe")(functions.config().stripe.token);
+
+// Configuration. Keys are Cloud Secret Manager secrets (firebase deploy asks for any
+// that aren't set yet); the platform fee is a plain param, set in functions/.env.
+// These replace functions.config(), which Google is shutting down.
+const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
+const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
+const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
+const platformFeePercent = defineInt("PLATFORM_FEE_PERCENT", {
+  default: 5,
+  description: "MenuDock's default fee on each order, as a percentage of the item subtotal.",
+});
+
+// Secrets are only readable while a request is running, so create the client lazily.
+let stripeClient;
+const stripe = () => {
+  if (!stripeClient) stripeClient = require("stripe")(stripeSecretKey.value());
+  return stripeClient;
+};
 
 // const PORT = 8082;
 const app = express();
@@ -27,16 +45,14 @@ async function loadRestaurant(restaurantId) {
 
 /**
  * Platform application fee, as a percentage of the item subtotal. A restaurant may
- * override it via payments.applicationFeePercent; otherwise stripe.application_fee_percent.
+ * override it via payments.applicationFeePercent; otherwise PLATFORM_FEE_PERCENT applies.
  * @param {number} total Item subtotal in major currency units.
  * @param {Object} restaurant The restaurant record.
  * @return {number} Fee in minor units (e.g. pence); 0 when no fee configured.
  */
 function applicationFeeAmount(total, restaurant) {
   const percent = Number(
-      restaurant?.payments?.applicationFeePercent ??
-      (functions.config().stripe && functions.config().stripe.application_fee_percent) ??
-      0,
+      restaurant?.payments?.applicationFeePercent ?? platformFeePercent.value() ?? 0,
   );
   if (!percent || percent <= 0) return 0;
   return Math.round(total * (percent / 100) * 100); // minor units (e.g. pence)
@@ -123,7 +139,7 @@ app.post("/stripe-session", async (req, res) => {
       console.warn(`Restaurant ${restaurantId} has no Stripe connected account; charging on the platform account.`);
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await stripe().checkout.sessions.create(sessionParams);
     res.json(session);
   } catch (err) {
     res.status(err.statusCode || 500).json(err.message);
@@ -134,7 +150,7 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
   // Verify the event genuinely came from Stripe using the webhook signing secret.
   // On Cloud Functions the untouched request bytes are exposed as request.rawBody;
   // the parsed body cannot be used for signature verification.
-  const webhookSecret = functions.config().stripe.webhook_secret;
+  const webhookSecret = stripeWebhookSecret.value();
 
   if (!webhookSecret) {
     console.error("Stripe webhook secret is not configured; rejecting unverified event.");
@@ -144,7 +160,7 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
   let event;
   const signature = request.headers["stripe-signature"];
   try {
-    event = stripe.webhooks.constructEvent(request.rawBody, signature, webhookSecret);
+    event = stripe().webhooks.constructEvent(request.rawBody, signature, webhookSecret);
   } catch (err) {
     console.error("⚠️  Webhook signature verification failed.", err.message);
     return response.status(400).send(`Webhook Error: ${err.message}`);
@@ -173,14 +189,16 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
 //   console.log("API os listening on port", PORT);
 // });
 
-exports.payments = functions.https.onRequest(app);
+exports.payments = functions
+    .runWith({secrets: [stripeSecretKey, stripeWebhookSecret]})
+    .https.onRequest(app);
 
 // Menu import: the dashboard uploads a photo/PDF/doc/spreadsheet of the menu to
 // menu-imports/{restaurantId}/ and calls this with its path. Returns draft categories
 // for the owner to review; it never writes the live menu.
 // Needs the Claude API key as a secret: firebase functions:secrets:set ANTHROPIC_API_KEY
 exports.importMenu = functions
-    .runWith({secrets: ["ANTHROPIC_API_KEY"], timeoutSeconds: 300, memory: "1GB"})
+    .runWith({secrets: [anthropicApiKey], timeoutSeconds: 300, memory: "1GB"})
     .https.onCall(async (data, context) => {
       const restaurantId = data && data.restaurantId;
       try {
@@ -192,7 +210,7 @@ exports.importMenu = functions
         const blocks = await menuImport.toContentBlocks(buffer, metadata.contentType, data.fileName || metadata.name);
 
         const Anthropic = require("@anthropic-ai/sdk");
-        const client = new Anthropic({apiKey: process.env.ANTHROPIC_API_KEY});
+        const client = new Anthropic({apiKey: anthropicApiKey.value()});
         const draft = await menuImport.extractMenu(client, blocks);
         await file.delete().catch(() => {}); // the upload is only needed for this import
         return draft;
