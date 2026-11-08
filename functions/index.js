@@ -1,10 +1,13 @@
 /* eslint-disable camelcase */
 /* eslint-disable max-len */
 const functions = require("firebase-functions");
-const firestore = require("firebase-admin").initializeApp().firestore();
+const admin = require("firebase-admin");
+admin.initializeApp();
+const firestore = admin.firestore();
 const express = require("express");
 const cors = require("cors");
 const {markOrderPaid} = require("./orders");
+const menuImport = require("./menuImport");
 const stripe = require("stripe")(functions.config().stripe.token);
 
 // const PORT = 8082;
@@ -171,3 +174,35 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
 // });
 
 exports.payments = functions.https.onRequest(app);
+
+// Menu import: the dashboard uploads a photo/PDF/doc/spreadsheet of the menu to
+// menu-imports/{restaurantId}/ and calls this with its path. Returns draft categories
+// for the owner to review; it never writes the live menu.
+// Needs the Claude API key as a secret: firebase functions:secrets:set ANTHROPIC_API_KEY
+exports.importMenu = functions
+    .runWith({secrets: ["ANTHROPIC_API_KEY"], timeoutSeconds: 300, memory: "1GB"})
+    .https.onCall(async (data, context) => {
+      const restaurantId = data && data.restaurantId;
+      try {
+        await menuImport.assertCanImport(firestore, context.auth, restaurantId);
+        const file = admin.storage().bucket().file(menuImport.importPath(restaurantId, data.path));
+        const [exists] = await file.exists();
+        if (!exists) throw new menuImport.ImportError("not-found", "That upload can't be found. Please try again.");
+        const [[metadata], [buffer]] = await Promise.all([file.getMetadata(), file.download()]);
+        const blocks = await menuImport.toContentBlocks(buffer, metadata.contentType, data.fileName || metadata.name);
+
+        const Anthropic = require("@anthropic-ai/sdk");
+        const client = new Anthropic({apiKey: process.env.ANTHROPIC_API_KEY});
+        const draft = await menuImport.extractMenu(client, blocks);
+        await file.delete().catch(() => {}); // the upload is only needed for this import
+        return draft;
+      } catch (err) {
+        if (err instanceof menuImport.ImportError) {
+          const code = ["unauthenticated", "permission-denied", "invalid-argument", "not-found"].includes(err.code) ?
+            err.code : "failed-precondition";
+          throw new functions.https.HttpsError(code, err.message, {reason: err.code});
+        }
+        console.error("Menu import failed", restaurantId, err);
+        throw new functions.https.HttpsError("internal", "Something went wrong reading that menu. Please try again.");
+      }
+    });
