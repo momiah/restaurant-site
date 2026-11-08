@@ -10,6 +10,7 @@ const cors = require("cors");
 const {markOrderPaid} = require("./orders");
 const menuImport = require("./menuImport");
 const loyalty = require("./loyalty");
+const checkout = require("./checkout");
 
 // Configuration. Keys are Cloud Secret Manager secrets (firebase deploy asks for any
 // that aren't set yet); the platform fee is a plain param, set in functions/.env.
@@ -34,32 +35,6 @@ const app = express();
 app.use(cors({origin: true}));
 
 /**
- * Load a restaurant's config (payments + ordering rules) from Firestore.
- * @param {string} restaurantId Restaurant document id.
- * @return {Promise<Object|null>} The restaurant record, or null if not found.
- */
-async function loadRestaurant(restaurantId) {
-  if (!restaurantId) return null;
-  const snap = await firestore.collection("restaurants").doc(restaurantId).get();
-  return snap.exists ? {id: snap.id, ...snap.data()} : null;
-}
-
-/**
- * Platform application fee, as a percentage of the item subtotal. A restaurant may
- * override it via payments.applicationFeePercent; otherwise PLATFORM_FEE_PERCENT applies.
- * @param {number} total Item subtotal in major currency units.
- * @param {Object} restaurant The restaurant record.
- * @return {number} Fee in minor units (e.g. pence); 0 when no fee configured.
- */
-function applicationFeeAmount(total, restaurant) {
-  const percent = Number(
-      restaurant?.payments?.applicationFeePercent ?? platformFeePercent.value() ?? 0,
-  );
-  if (!percent || percent <= 0) return 0;
-  return Math.round(total * (percent / 100) * 100); // minor units (e.g. pence)
-}
-
-/**
  * The loyalty member placing this order, if the request carries their Firebase ID
  * token (the loyalty app sends one; the website doesn't). Invalid tokens are ignored
  * rather than failing the order: the customer just won't be pre-linked for points.
@@ -78,115 +53,36 @@ async function signedInCustomer(req) {
 }
 
 /**
- * Where Stripe sends the customer afterwards. Browsers send an Origin header (the
- * website); the loyalty app doesn't, so it lands on the restaurant's website order
- * page instead: restaurants/{id}.websiteUrl, else its first domains/{hostname} entry.
- * @param {Object} req Express request.
- * @param {Object} restaurant Restaurant record.
- * @return {Promise<string|null>} Origin such as https://order.example.com, or null.
+ * Create a checkout. The website and the loyalty app send only what the customer
+ * wants and their details; prices, totals and the order itself come from the server
+ * (checkout.js, pricing.js), so a tampered basket can't change the charge or the
+ * kitchen ticket. Returns { id, url } — the Stripe Checkout session to open.
  */
-async function returnOrigin(req, restaurant) {
-  if (req.headers.origin) return req.headers.origin;
-  if (restaurant.websiteUrl) return String(restaurant.websiteUrl).replace(/\/+$/, "");
-  const domains = await firestore.collection("domains").where("restaurantId", "==", restaurant.id).limit(1).get();
-  return domains.empty ? null : `https://${domains.docs[0].id}`;
-}
-
-// route endpoint
 app.post("/stripe-session", async (req, res) => {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).end("Method Not Allowed");
-  }
-
-  const cartItems = [...req.body.cartItems];
-  const total = req.body.total;
-  const orderType = req.body.orderType;
-  const restaurantId = req.body.restaurantId;
-
   try {
-    const restaurant = await loadRestaurant(restaurantId);
-    if (!restaurant) {
-      return res.status(400).json(`Unknown or missing restaurantId: ${restaurantId}`);
-    }
-    if (restaurant.status && restaurant.status !== "active") {
-      return res.status(403).json("This restaurant is not currently accepting orders");
-    }
-
-    const ordering = restaurant.ordering || {};
-    const payments = restaurant.payments || {};
-    const currency = (ordering.currency || "GBP").toLowerCase();
-
-    const transformedItems = cartItems?.map((item) => ({
-      price_data: {
-        currency,
-        product_data: {
-          name: `${item?.name} ${item?.extras?.reduce((a, e) => a += `+ ${e?.type} `, "")}`,
-          images: item?.image ? [item.image] : [],
-          description: item?.description,
-        },
-        unit_amount_decimal: item?.price * 100,
-      },
-      quantity: item?.quantity,
-    }));
-
-    // Per-restaurant delivery fee: free above the restaurant's threshold, otherwise a
-    // pre-created shipping rate (payments.shippingRateId) or one built from ordering.deliveryFee.
-    const threshold = ordering.freeDeliveryThreshold ?? 0;
-    let shipping_options = [];
-    if (orderType === "Delivery" && total < threshold) {
-      if (payments.shippingRateId) {
-        shipping_options = [{shipping_rate: payments.shippingRateId}];
-      } else if (ordering.deliveryFee > 0) {
-        shipping_options = [{
-          shipping_rate_data: {
-            type: "fixed_amount",
-            display_name: "Delivery",
-            fixed_amount: {amount: Math.round(ordering.deliveryFee * 100), currency},
-          },
-        }];
-      }
-    }
-
-    const origin = await returnOrigin(req, restaurant);
-    if (!origin) {
-      return res.status(400).json("This restaurant has no website address set up for app orders yet");
-    }
-    const member = await signedInCustomer(req);
-
-    const sessionParams = {
-      line_items: transformedItems,
-      mode: "payment",
-      success_url: `${origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/order-cancel/?session_id={CHECKOUT_SESSION_ID}`,
-      shipping_options,
-      allow_promotion_codes: true,
-      // customerUid links the order to a loyalty member for points (set only from a
-      // verified ID token, never from the request body).
-      metadata: {restaurantId, ...(member ? {customerUid: member.uid} : {})},
-      ...(member && member.email ? {customer_email: member.email} : {}),
-    };
-
-    // Stripe Connect: route the money to the restaurant's connected account via a
-    // destination charge, taking the platform application fee. When a restaurant has
-    // no connected account yet (pre-onboarding), fall back to a plain platform charge.
-    const destination = payments.stripeAccountId;
-    if (destination) {
-      const feeAmount = applicationFeeAmount(total, restaurant);
-      sessionParams.payment_intent_data = {
-        transfer_data: {destination},
-        ...(feeAmount > 0 ? {application_fee_amount: feeAmount} : {}),
-        metadata: {restaurantId},
-      };
-    } else {
-      console.warn(`Restaurant ${restaurantId} has no Stripe connected account; charging on the platform account.`);
-    }
-
-    const session = await stripe().checkout.sessions.create(sessionParams);
-    res.json(session);
+    const result = await checkout.createCheckout({
+      db: firestore,
+      stripe: stripe(),
+      body: req.body || {},
+      origin: req.headers.origin,
+      member: await signedInCustomer(req),
+      functionBaseUrl: `https://${req.get("host")}/payments`,
+      platformFeePercent: platformFeePercent.value(),
+    });
+    res.json(result);
   } catch (err) {
-    res.status(err.statusCode || 500).json(err.message);
+    if (err instanceof checkout.CheckoutError) return res.status(err.status).json(err.message);
+    console.error("Checkout failed", req.body && req.body.restaurantId, err);
+    res.status(500).json("Something went wrong starting your payment. Please try again.");
   }
+});
+
+// Where Stripe sends app customers after paying (or cancelling): straight back into
+// the loyalty app, which then shows the order's live progress.
+app.get("/checkout-return", async (req, res) => {
+  const url = await checkout.appReturnRedirect(firestore, req.query.session_id, req.query.result);
+  if (!url) return res.status(404).send("Order not found. Please return to the app.");
+  res.redirect(302, url);
 });
 
 app.post("/checkout-webhook", express.raw({type: "application/json"}), async (request, response) => {
