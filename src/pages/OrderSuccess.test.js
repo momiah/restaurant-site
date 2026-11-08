@@ -70,3 +70,13 @@ test("explains when the order can't be found", () => {
   act(() => mockEmit(snapshot(null)));
   expect(screen.getByText("We couldn't find that order")).toBeInTheDocument();
 });
+
+test("tells the customer about the points this order earned", () => {
+  renderPage();
+  const order = { payment_status: "paid", orderNumber: 1009, orderType: "Collection", total: 20 };
+  act(() => mockEmit(snapshot({ ...order, loyalty: { points: 20, status: "awarded" } })));
+  expect(screen.getByTestId("loyalty-note")).toHaveTextContent("You earned 20 points on this order.");
+
+  act(() => mockEmit(snapshot({ ...order, loyalty: { points: 20, status: "unclaimed" }, customer_details: { email: "ann@example.com" } })));
+  expect(screen.getByTestId("loyalty-note")).toHaveTextContent("Join the loyalty app with ann@example.com to collect them.");
+});
