@@ -9,6 +9,7 @@ const express = require("express");
 const cors = require("cors");
 const {markOrderPaid} = require("./orders");
 const menuImport = require("./menuImport");
+const loyalty = require("./loyalty");
 
 // Configuration. Keys are Cloud Secret Manager secrets (firebase deploy asks for any
 // that aren't set yet); the platform fee is a plain param, set in functions/.env.
@@ -56,6 +57,39 @@ function applicationFeeAmount(total, restaurant) {
   );
   if (!percent || percent <= 0) return 0;
   return Math.round(total * (percent / 100) * 100); // minor units (e.g. pence)
+}
+
+/**
+ * The loyalty member placing this order, if the request carries their Firebase ID
+ * token (the loyalty app sends one; the website doesn't). Invalid tokens are ignored
+ * rather than failing the order: the customer just won't be pre-linked for points.
+ * @param {Object} req Express request.
+ * @return {Promise<Object|null>} Decoded ID token, or null.
+ */
+async function signedInCustomer(req) {
+  const match = /^Bearer (.+)$/.exec(req.headers.authorization || "");
+  if (!match) return null;
+  try {
+    return await admin.auth().verifyIdToken(match[1]);
+  } catch (err) {
+    console.warn("Ignoring invalid ID token on checkout", err.code || err.message);
+    return null;
+  }
+}
+
+/**
+ * Where Stripe sends the customer afterwards. Browsers send an Origin header (the
+ * website); the loyalty app doesn't, so it lands on the restaurant's website order
+ * page instead: restaurants/{id}.websiteUrl, else its first domains/{hostname} entry.
+ * @param {Object} req Express request.
+ * @param {Object} restaurant Restaurant record.
+ * @return {Promise<string|null>} Origin such as https://order.example.com, or null.
+ */
+async function returnOrigin(req, restaurant) {
+  if (req.headers.origin) return req.headers.origin;
+  if (restaurant.websiteUrl) return String(restaurant.websiteUrl).replace(/\/+$/, "");
+  const domains = await firestore.collection("domains").where("restaurantId", "==", restaurant.id).limit(1).get();
+  return domains.empty ? null : `https://${domains.docs[0].id}`;
 }
 
 // route endpoint
@@ -114,14 +148,23 @@ app.post("/stripe-session", async (req, res) => {
       }
     }
 
+    const origin = await returnOrigin(req, restaurant);
+    if (!origin) {
+      return res.status(400).json("This restaurant has no website address set up for app orders yet");
+    }
+    const member = await signedInCustomer(req);
+
     const sessionParams = {
       line_items: transformedItems,
       mode: "payment",
-      success_url: `${req.headers.origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/order-cancel/?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/order-cancel/?session_id={CHECKOUT_SESSION_ID}`,
       shipping_options,
       allow_promotion_codes: true,
-      metadata: {restaurantId},
+      // customerUid links the order to a loyalty member for points (set only from a
+      // verified ID token, never from the request body).
+      metadata: {restaurantId, ...(member ? {customerUid: member.uid} : {})},
+      ...(member && member.email ? {customer_email: member.email} : {}),
     };
 
     // Stripe Connect: route the money to the restaurant's connected account via a
@@ -174,10 +217,13 @@ app.post("/checkout-webhook", express.raw({type: "application/json"}), async (re
     "checkout.session.async_payment_succeeded",
   ];
   if (paidEvents.includes(event.type)) {
+    const session = event.data.object;
     try {
-      await markOrderPaid(firestore, event.data.object);
+      const order = await markOrderPaid(firestore, session);
+      // Loyalty points from what Stripe charged; also safe to repeat on a retry.
+      await loyalty.awardOrderPoints(firestore, admin.auth(), session, order);
     } catch (err) {
-      console.error("Failed to record paid order", event.data.object.id, err);
+      console.error("Failed to record paid order", session.id, err);
       return response.status(500).send("Failed to record order");
     }
   }
@@ -224,3 +270,19 @@ exports.importMenu = functions
         throw new functions.https.HttpsError("internal", "Something went wrong reading that menu. Please try again.");
       }
     });
+
+// Loyalty app, after sign-in: collects points earned on orders paid with this
+// member's email before they joined (or before they verified it). Needs a verified
+// email, so nobody can claim someone else's points by signing up with their address.
+exports.claimLoyaltyPoints = functions.https.onCall(async (data, context) => {
+  const restaurantId = data && data.restaurantId;
+  const token = context.auth && context.auth.token;
+  if (!token) throw new functions.https.HttpsError("unauthenticated", "Please sign in again.");
+  if (!restaurantId || typeof restaurantId !== "string") {
+    throw new functions.https.HttpsError("invalid-argument", "Missing restaurant.");
+  }
+  if (!token.email || token.email_verified !== true) {
+    throw new functions.https.HttpsError("failed-precondition", "Verify your email address to collect points.");
+  }
+  return loyalty.claimUnclaimedPoints(firestore, {uid: context.auth.uid, email: token.email}, restaurantId);
+});

@@ -53,17 +53,36 @@ service cloud.firestore {
       }
 
       // Loyalty customer profiles — PRIVATE to that customer (or the restaurant/admin).
-      // NOTE: Phase 1 lets the customer write their own points for simplicity; before
-      // launch, award points server-side (payment webhook) and make points admin-only.
+      // Points are awarded only by the Stripe webhook (Admin SDK): a customer can create
+      // their profile with zero points and edit their details, never their balance.
+      // Owners/admins can adjust balances (e.g. a goodwill top-up).
       match /customers/{uid} {
-        allow read, write: if isAdmin()
-          || isOwnerOf(restaurantId)
-          || (request.auth != null && request.auth.uid == uid);
-        match /{sub=**} {
-          allow read, write: if isAdmin()
-            || isOwnerOf(restaurantId)
-            || (request.auth != null && request.auth.uid == uid);
+        function isSelf() {
+          return request.auth != null && request.auth.uid == uid;
         }
+        allow read: if isAdmin() || isOwnerOf(restaurantId) || isSelf();
+        allow create: if isAdmin() || isOwnerOf(restaurantId)
+          || (isSelf()
+            && request.resource.data.get("points", 0) == 0
+            && request.resource.data.get("lifetimePoints", 0) == 0);
+        allow update: if isAdmin() || isOwnerOf(restaurantId)
+          || (isSelf()
+            && !request.resource.data.diff(resource.data).affectedKeys()
+                .hasAny(["points", "lifetimePoints"]));
+        allow delete: if isAdmin() || isOwnerOf(restaurantId);
+
+        // Points ledger, one entry per order. Written only by the server.
+        match /pointsHistory/{entryId} {
+          allow read: if isAdmin() || isOwnerOf(restaurantId) || isSelf();
+          allow write: if false;
+        }
+      }
+
+      // Points from orders whose email doesn't belong to a member yet, waiting to be
+      // claimed (claimLoyaltyPoints). Written only by the server.
+      match /unclaimedPoints/{orderId} {
+        allow read: if isAdmin() || isOwnerOf(restaurantId);
+        allow write: if false;
       }
     }
 
