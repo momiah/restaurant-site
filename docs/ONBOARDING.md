@@ -8,12 +8,16 @@ you set per client.
 
 - One shared **Firebase project** (the platform project) — its config is in the site's
   `REACT_APP_FIREBASE_*` and the dashboard's `EXPO_PUBLIC_FIREBASE_*` env vars.
-- Cloud Functions deployed from `functions/` with Stripe config set:
-  - `firebase functions:config:set stripe.token="sk_live_…" stripe.webhook_secret="whsec_…"`
-  - optional platform fee: `stripe.application_fee_percent="10"`
-- Menu import (owners scan a photo/PDF/Word/Excel menu from the dashboard) needs a Claude
-  API key, stored as a Functions secret — never in code or `functions:config`:
-  `firebase functions:secrets:set ANTHROPIC_API_KEY` (paste the key when prompted).
+- Cloud Functions deployed from `functions/` (Node.js 22). Keys are Functions **secrets**
+  (Cloud Secret Manager), never in code; set each once, pasting the value when prompted:
+  - `firebase functions:secrets:set STRIPE_SECRET_KEY` — the platform's `sk_live_…` key
+  - `firebase functions:secrets:set STRIPE_WEBHOOK_SECRET` — the `whsec_…` signing secret of
+    the webhook endpoint `…/payments/checkout-webhook` (Stripe Dashboard → Webhooks)
+  - `firebase functions:secrets:set ANTHROPIC_API_KEY` — only for menu import (owners scan a
+    photo/PDF/Word/Excel menu from the dashboard); deploy `functions:importMenu` once it's set
+  - `firebase deploy` also asks for any of these that aren't set yet.
+- Platform fee: `PLATFORM_FEE_PERCENT` in `functions/.env` (default 5). A restaurant can
+  override it with `payments.applicationFeePercent` on its record.
 - Firestore + Storage rules deployed: `firebase deploy --only firestore:rules,storage`.
 - A **Stripe Connect** platform enabled on your Stripe account.
 
