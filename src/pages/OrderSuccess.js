@@ -45,6 +45,26 @@ const OrderDetails = ({ order, orderId, phone }) => (
   </OrderDetailsContainer>
 );
 
+// Points are awarded by the payment webhook; this just reports what happened.
+const LoyaltyNote = ({ order, restaurantName }) => {
+  const points = order?.loyalty?.points;
+  if (!points) return null;
+  const email = order.customer_details?.email;
+  return (
+    <Loyalty data-testid="loyalty-note">
+      {order.loyalty.status === "awarded" ? (
+        <>⭐ You earned <strong>{points} points</strong> on this order.</>
+      ) : (
+        <>
+          ⭐ This order earned <strong>{points} points</strong>. Join the
+          {restaurantName ? ` ${restaurantName}` : ""} loyalty app
+          {email ? <> with <strong>{email}</strong></> : null} to collect them.
+        </>
+      )}
+    </Loyalty>
+  );
+};
+
 const OrderSuccess = () => {
   const [order, setOrder] = useState(null);
   const [notFound, setNotFound] = useState(false);
@@ -115,6 +135,7 @@ const OrderSuccess = () => {
         {paid && <PartyHat>🎉</PartyHat>}
         <SuccessHeading>{paid ? "Thanks for your order!" : "Almost there"}</SuccessHeading>
         <OrderTracker order={order} />
+        <LoyaltyNote order={order} restaurantName={restaurant?.name} />
         <OrderDetails order={order} orderId={orderId} phone={phone} />
         {!isDelivery(order) && collectionAddress && (
           <CollectionContainer>
@@ -140,6 +161,18 @@ const OrderSuccess = () => {
     </SuccessPage>
   );
 };
+
+const Loyalty = styled.p({
+  width: "100%",
+  boxSizing: "border-box",
+  margin: "20px 0 0",
+  padding: "12px 16px",
+  borderRadius: 12,
+  backgroundColor: "#FFF7E0",
+  color: "#5C4300",
+  fontSize: "0.95rem",
+  textAlign: "center",
+});
 
 const SuccessPage = styled.div({
   width: "100%",

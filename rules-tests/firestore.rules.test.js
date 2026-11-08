@@ -197,7 +197,35 @@ describe("loyalty customer profiles are private", () => {
   it("the restaurant's own owner can see their customers", async () => {
     await assertSucceeds(getDoc(doc(tacoOwner(), "restaurants", TACO, "customers", "diner1")));
   });
-  test.todo("KNOWN GAP (points phase): customers can currently write their own points — move awarding to the Stripe webhook and make points admin-only");
+  it("a customer cannot give themselves points, on sign-up or later", async () => {
+    const me = user("diner1");
+    await assertFails(updateDoc(doc(me, "restaurants", TACO, "customers", "diner1"), { points: 100000 }));
+    await assertFails(updateDoc(doc(me, "restaurants", TACO, "customers", "diner1"), { lifetimePoints: 100000 }));
+    await assertFails(setDoc(doc(user("newbie"), "restaurants", TACO, "customers", "newbie"), { name: "N", points: 500, lifetimePoints: 0 }));
+  });
+  it("a customer can join with zero points and update their own details", async () => {
+    await assertSucceeds(setDoc(doc(user("newbie"), "restaurants", TACO, "customers", "newbie"), { name: "N", email: "n@x.com", points: 0, lifetimePoints: 0 }));
+    await assertSucceeds(updateDoc(doc(user("diner1"), "restaurants", TACO, "customers", "diner1"), { name: "Annie" }));
+  });
+  it("the points ledger is readable by the customer and owner, writable by nobody", async () => {
+    await env.withSecurityRulesDisabled((ctx) =>
+      setDoc(doc(ctx.firestore(), "restaurants", TACO, "customers", "diner1", "pointsHistory", "cs_1"), { points: 10 }));
+    await assertSucceeds(getDoc(doc(user("diner1"), "restaurants", TACO, "customers", "diner1", "pointsHistory", "cs_1")));
+    await assertSucceeds(getDoc(doc(tacoOwner(), "restaurants", TACO, "customers", "diner1", "pointsHistory", "cs_1")));
+    await assertFails(getDoc(doc(user("diner2"), "restaurants", TACO, "customers", "diner1", "pointsHistory", "cs_1")));
+    await assertFails(setDoc(doc(user("diner1"), "restaurants", TACO, "customers", "diner1", "pointsHistory", "cs_2"), { points: 999 }));
+    await assertFails(setDoc(doc(tacoOwner(), "restaurants", TACO, "customers", "diner1", "pointsHistory", "cs_2"), { points: 999 }));
+  });
+  it("unclaimed points are visible to the owner only and can't be written by clients", async () => {
+    await env.withSecurityRulesDisabled((ctx) =>
+      setDoc(doc(ctx.firestore(), "restaurants", TACO, "unclaimedPoints", "cs_9"), { email: "x@y.com", points: 5 }));
+    await assertSucceeds(getDoc(doc(tacoOwner(), "restaurants", TACO, "unclaimedPoints", "cs_9")));
+    await assertFails(getDoc(doc(user("diner1"), "restaurants", TACO, "unclaimedPoints", "cs_9")));
+    await assertFails(setDoc(doc(user("diner1"), "restaurants", TACO, "unclaimedPoints", "cs_10"), { email: "me@x.com", points: 500 }));
+  });
+  it("the restaurant's owner can adjust a customer's balance", async () => {
+    await assertSucceeds(updateDoc(doc(tacoOwner(), "restaurants", TACO, "customers", "diner1"), { points: 50 }));
+  });
 });
 
 describe("MenuDock admin console", () => {
