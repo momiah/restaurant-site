@@ -148,15 +148,21 @@ describe("owner dashboard — order status workflow", () => {
   });
 });
 
-describe("website checkout — creating orders", () => {
-  it("a customer can create a pending order for a restaurant", async () => {
-    await assertSucceeds(setDoc(doc(anon(), "orders", "cs_1"), { restaurantId: TACO, payment_status: "pending", total: 9 }));
+describe("checkout — orders", () => {
+  it("nobody can create an order from a browser or app (only the checkout function can)", async () => {
+    await assertFails(setDoc(doc(anon(), "orders", "cs_1"), { restaurantId: TACO, payment_status: "pending", total: 0.01 }));
+    await assertFails(setDoc(doc(user("diner1"), "orders", "cs_2"), { restaurantId: TACO, payment_status: "pending", total: 9 }));
+    await assertFails(setDoc(doc(tacoOwner(), "orders", "cs_3"), { restaurantId: TACO, payment_status: "pending", total: 9 }));
   });
-  it("a customer cannot create an order that claims to be already paid", async () => {
-    await assertFails(setDoc(doc(anon(), "orders", "cs_2"), { restaurantId: TACO, payment_status: "paid", total: 9 }));
-  });
-  it("an order must name a restaurant", async () => {
-    await assertFails(setDoc(doc(anon(), "orders", "cs_3"), { payment_status: "pending", total: 9 }));
+  it("a signed-in customer can list their own app orders, and only theirs", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "orders", "app1"), { restaurantId: TACO, payment_status: "paid", customerUid: "diner1" });
+      await setDoc(doc(ctx.firestore(), "orders", "app2"), { restaurantId: TACO, payment_status: "paid", customerUid: "diner2" });
+    });
+    const mine = await assertSucceeds(getDocs(query(collection(user("diner1"), "orders"), where("customerUid", "==", "diner1"))));
+    expect(mine.docs.map((d) => d.id)).toEqual(["app1"]);
+    await assertFails(getDocs(query(collection(user("diner1"), "orders"), where("customerUid", "==", "diner2"))));
+    await assertFails(getDocs(query(collection(anon(), "orders"), where("customerUid", "==", "diner1"))));
   });
   it("a customer can follow their own order by its (unguessable) id", async () => {
     const snap = await assertSucceeds(getDoc(doc(anon(), "orders", "o1")));

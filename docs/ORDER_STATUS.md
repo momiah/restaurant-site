@@ -39,10 +39,17 @@ counter or on the phone; the kitchen sees the same number on the tablet.
 
 ## Who can change what (enforced by `firestore.rules`)
 
-- **Customer** — follows their order live at `/order-success/?session_id=…`. The order id
+- **Checkout function** (`/stripe-session`, Admin SDK) — the only thing that creates
+  orders. The website and app send what the customer wants (item names, extras,
+  proteins, quantities) and their details; every price, the total and the delivery fee
+  come from the restaurant's menu and settings (`functions/pricing.js`). Browsers and
+  apps can't create orders at all, so a tampered basket can't change what's charged or
+  what the kitchen sees.
+- **Customer** — follows their order live: on the website at
+  `/order-success/?session_id=…`, in the loyalty app on its order screen. The order id
   is the Stripe Checkout session id: long, unguessable, and only sent to that customer.
-  Anyone holding the id can read that one order; nobody but the owner/admins can list or
-  search orders.
+  Anyone holding the id can read that one order. A signed-in app customer can also list
+  their own app orders; nobody else but the owner/admins can list or search orders.
 - **Owner (dashboard)** — on their own **paid** orders may change only `status` (one of the
   four above) and `statusTimes`. They can step back to undo a mis-tap. They can't touch
   totals, items, payment status or the order number.

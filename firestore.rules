@@ -116,15 +116,17 @@ service cloud.firestore {
 
     // Orders live top-level, scoped by restaurantId.
     match /orders/{orderId} {
-      // The website creates a pending order; it must name a restaurant and start unpaid.
-      allow create: if request.resource.data.restaurantId is string
-        && request.resource.data.restaurantId.size() > 0
-        && request.resource.data.payment_status == "pending";
+      // Orders are created only by the checkout function (Admin SDK), which prices
+      // them from the menu. A client-written order could claim any items or total.
+      allow create: if false;
       // A customer follows their order by its id. Ids are Stripe Checkout session ids
       // (long and unguessable) that only the customer receives, in their confirmation
       // link. Listing or querying orders stays restricted to the owner and admins.
       allow get: if true;
-      allow list: if isAdmin() || isOwnerOf(resource.data.restaurantId);
+      // Owners list their restaurant's orders; a signed-in customer lists their own
+      // app orders (customerUid is set by the checkout function from their ID token).
+      allow list: if isAdmin() || isOwnerOf(resource.data.restaurantId)
+        || (request.auth != null && resource.data.customerUid == request.auth.uid);
       // The owner moves their own paid orders through the kitchen workflow. Nothing else
       // on an order can change from a client: payment and order numbers come from the
       // Stripe webhook (Admin SDK).

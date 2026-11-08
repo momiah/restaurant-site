@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useCart } from "./CartContext";
 import CustomerForm from "./CustomerForm";
-import { db } from "../../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
 import {
   getUserLocation,
   isWithinRadius,
@@ -32,20 +30,6 @@ const Cart = () => {
   const [popupMessage, setPopupMessage] = useState("");
   const [popupIcon, setPopupIcon] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
-  const [dateTime, setDateTime] = useState('');
-
-const timeIs = () => {
-      // Get the current date and time
-      const currentDateTime = new Date();
-  
-      // Format the date and time as a string
-      const formattedDateTime = currentDateTime.toLocaleString();
-    
-      // Update the state with the formatted date and time
-      setDateTime(formattedDateTime);
-  
-
-}
 
   const [total, setTotal] = useState(0);
   const [formData, setFormData] = useState({
@@ -79,7 +63,6 @@ const timeIs = () => {
   const handleClose = (e) => {
     toggleCart(false);
     e.stopPropagation();
-    timeIs()
 
   };
 
@@ -189,66 +172,54 @@ const timeIs = () => {
     }
   };
 
+  // Sends what the customer wants and their details; the checkout function prices
+  // everything from the menu and records the order, then we hand over to Stripe.
   const handlePaymentProcessing = async () => {
     setIsProcessing(true);
-  
-    cartItems.forEach((cartItem) => {
-      cartItem.price = Number(cartItem.price.toFixed(2));
-    });
-  
-    const currentDateTime = new Date();
-    const formattedDateTime = currentDateTime.toLocaleString();
-  
-
     try {
-      const requestOptions = {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "http://localhost:3000",
-          "Access-Control-Allow-Credentials": "true",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          cartItems,
-          total,
-          orderType: formData.orderType,
-          restaurantId,
-        }),
-        redirect: "follow",
-      };
-
-      // Base Cloud Functions URL comes from env; the restaurant is identified in the body.
       const functionsBaseUrl =
         process.env.REACT_APP_FUNCTIONS_URL ||
         "https://us-central1-menudock-platform.cloudfunctions.net/payments";
-      const res = await fetch(
-        `${functionsBaseUrl}/stripe-session`,
-        requestOptions
-      );
-
-      const data = await res.json();
-
-      if (data?.id && data?.url) {
-        await setDoc(doc(db, "orders", data.id), {
-          ...formData,
+      const res = await fetch(`${functionsBaseUrl}/stripe-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           restaurantId,
-          orderItems: cartItems,
-          id: data.id,
-          payment_status: "pending",
-          total,
-          createdAt: formattedDateTime,
-        });
-  
+          orderType: formData.orderType,
+          cartItems: cartItems.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            extras: (item.extras || []).filter(Boolean).map((e) => e.type),
+            protein: item.protein || null,
+            secondProtein: item.secondProtein || null,
+            thirdProtein: item.thirdProtein || null,
+          })),
+          customer: {
+            name: formData.name,
+            contactNumber: formData.contactNumber,
+            address: formData.address,
+            postCode: formData.postCode,
+            notes: formData.notes,
+          },
+        }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.url) {
         window.location.href = data.url;
-      } else {
-        setPopup("🛒", "Your cart is empty!", "Please add items to your cart");
+        return;
       }
+      setPopup(
+        "⚠️",
+        "We couldn't start your payment",
+        typeof data === "string" ? data : "Please try again in a moment."
+      );
     } catch (error) {
       console.error(error);
-      console.log('error', error)
+      setPopup("⚠️", "We couldn't start your payment", "Check your connection and try again.");
     }
+    setIsProcessing(false);
   };
-  
 
   const setPopup = (icon, title, message) => {
     setPopupIcon(icon);
