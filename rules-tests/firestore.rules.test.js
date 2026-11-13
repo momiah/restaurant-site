@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { initializeTestEnvironment, assertSucceeds, assertFails } = require("@firebase/rules-unit-testing");
-const { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp } = require("firebase/firestore");
+const { doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp } = require("firebase/firestore");
 
 let env;
 const TACO = "taco-monster";
@@ -238,5 +238,30 @@ describe("MenuDock admin console", () => {
   it("an admin can manage any restaurant, including payments, billing and status", async () => {
     await assertSucceeds(updateDoc(doc(admin(), "restaurants", NOODLE), { status: "paused", "billing.platformFeePercent": 7, "payments.stripeAccountId": "acct_new" }));
     await assertSucceeds(getDocs(collection(admin(), "orders")));
+  });
+});
+
+describe("MenuDock website — book a demo", () => {
+  const lead = () => ({
+    name: "Ann", restaurant: "Ann's Kitchen", email: "ann@annskitchen.co.uk", phone: "07700900123",
+    city: "London", apps: "Uber Eats", monthlySales: "£5k–£10k", message: "", status: "new", source: "website",
+    createdAt: serverTimestamp(),
+  });
+  it("anyone can send a demo request", async () => {
+    await assertSucceeds(addDoc(collection(anon(), "leads"), lead()));
+  });
+  it("requests are validated: required fields, sizes, no extra fields, server time", async () => {
+    await assertFails(addDoc(collection(anon(), "leads"), { ...lead(), name: "" }));
+    await assertFails(addDoc(collection(anon(), "leads"), { ...lead(), message: "x".repeat(2001) }));
+    await assertFails(addDoc(collection(anon(), "leads"), { ...lead(), isAdmin: true }));
+    await assertFails(addDoc(collection(anon(), "leads"), { ...lead(), status: "won" }));
+    await assertFails(addDoc(collection(anon(), "leads"), { ...lead(), createdAt: new Date(2020, 0, 1) }));
+  });
+  it("only MenuDock admins can read or manage requests", async () => {
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), "leads", "l1"), { name: "Ann", status: "new" }));
+    await assertFails(getDoc(doc(anon(), "leads", "l1")));
+    await assertFails(getDocs(collection(tacoOwner(), "leads")));
+    await assertSucceeds(getDocs(collection(admin(), "leads")));
+    await assertSucceeds(updateDoc(doc(admin(), "leads", "l1"), { status: "contacted" }));
   });
 });
