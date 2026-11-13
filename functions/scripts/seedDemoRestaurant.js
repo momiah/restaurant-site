@@ -26,8 +26,8 @@ const RESTAURANT_SLUG = process.env.RESTAURANT_SLUG || "demo";
 const DOMAIN = process.env.DOMAIN || "";
 const OWNER_UID = process.env.OWNER_UID || "";
 
-const NO_IMAGE =
-  "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcoming-soon-photo.jpg?alt=media&token=c917b0d8-4f97-4824-9b07-ed51759c8b31";
+// No photo yet: the website shows a placeholder. Add real photos from the tablet.
+const NO_IMAGE = "";
 
 // A neutral demo restaurant: what prospects see behind "Try a live demo restaurant".
 // Contact details are placeholders (020 7946 0xxx is reserved for fiction by Ofcom).

@@ -18,8 +18,8 @@ export const defaultTheme = {
   logoUrl: "",
   heroImageUrl: "",
   faviconUrl: "",
-  noImageUrl:
-    "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcoming-soon-photo.jpg?alt=media&token=c917b0d8-4f97-4824-9b07-ed51759c8b31",
+  // Items without a photo show a placeholder in the restaurant colours (ItemPhoto).
+  noImageUrl: "",
 };
 
 // Deep-ish merge of a restaurant's theme onto the defaults (one level into colours/fonts).
