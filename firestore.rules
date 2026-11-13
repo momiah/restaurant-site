@@ -98,6 +98,31 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // "Book a demo" requests from the public MenuDock website. Anyone can send one
+    // (validated so the form can't be used to dump arbitrary data); only MenuDock
+    // admins can read or manage them, in the admin console's Leads tab.
+    function isText(field, min, max) {
+      return request.resource.data.get(field, "") is string
+        && request.resource.data.get(field, "").size() >= min
+        && request.resource.data.get(field, "").size() <= max;
+    }
+    match /leads/{leadId} {
+      allow create: if request.resource.data.keys().hasOnly([
+            "name", "restaurant", "email", "phone", "city", "apps", "monthlySales",
+            "message", "status", "source", "createdAt"])
+        && isText("name", 1, 100)
+        && isText("restaurant", 1, 120)
+        && isText("email", 3, 200)
+        && isText("phone", 0, 30)
+        && isText("city", 0, 80)
+        && isText("apps", 0, 120)
+        && isText("monthlySales", 0, 40)
+        && isText("message", 0, 2000)
+        && request.resource.data.status == "new"
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Admin directory (fallback admin check for the console). Readable by that admin.
     match /admins/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
