@@ -3,6 +3,7 @@ import styled from "styled-components";
 import MenuItemExpanded from "./MenuItemExpanded";
 import { useRestaurant } from "../../../restaurant/RestaurantContext";
 import { defaultTheme } from "../../../restaurant/defaultTheme";
+import ItemPhoto from "./ItemPhoto";
 
 const MenuItem = ({ menuItem }) => {
   const { restaurant } = useRestaurant();
@@ -25,7 +26,6 @@ const MenuItem = ({ menuItem }) => {
         {menuItem.category.toUpperCase()}
       </h2>
       {menuItem.items.map((items, index) => {
-        const imagePath = items.imageUrl ? items.imageUrl : noImageUrl;
         return (
           <Item onClick={() => handleItemClick(items)} key={index}>
             <ItemInfoContainer>
@@ -34,7 +34,7 @@ const MenuItem = ({ menuItem }) => {
                 <p>{items.description}</p>
                 <h4>£{items.price.toFixed(2)}</h4>
               </Description>
-              <ItemImage src={imagePath} />
+              <ItemImage src={items.imageUrl} fallback={noImageUrl} alt={items.name} />
             </ItemInfoContainer>
           </Item>
         );
@@ -90,7 +90,9 @@ const Item = styled.div({
   },
 });
 
-const ItemImage = styled.img({
+const ItemImage = styled(ItemPhoto)({
+  objectFit: "cover",
+  flexShrink: 0,
   height: "220px",
   width: "265px",
   margin: "25px",

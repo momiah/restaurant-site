@@ -177,7 +177,7 @@ const ItemDetails = ({
       <p>{description}</p>
 
 
-      <div style={{ overflow: 'auto', height: '40vh'}}>
+      <div>
         {extras &&
           extras.length > 0 && ( // Check if extras exist and has data
             <ExtrasContainer>
@@ -319,10 +319,9 @@ const Total = styled.h3({
 
 const DetailsContainer = styled.div({
   width: "60%",
-  height: "100%",
+  minWidth: 0,
   padding: "20px",
   display: "flex",
-  overflow: "scroll",
   flexDirection: "column",
   justifyContent: "space-between",
   boxSizing: "border-box",
@@ -372,6 +371,8 @@ const Checkbox = styled.input({
   width: "25px",
   height: "25px",
   cursor: "pointer",
+  flexShrink: 0,
+  margin: "0 2px 0 12px",
 });
 
 const AddToCart = styled.button({
