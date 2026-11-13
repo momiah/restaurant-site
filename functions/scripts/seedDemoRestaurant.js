@@ -10,7 +10,7 @@
  *
  * Usage (from the functions/ directory, which already has firebase-admin):
  *   GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json \
- *   RESTAURANT_ID=demo RESTAURANT_SLUG=taco-monster \
+ *   RESTAURANT_ID=demo RESTAURANT_SLUG=demo \
  *   [DOMAIN=order.example.com] [OWNER_UID=<firebase-auth-uid>] \
  *   node scripts/seedDemoRestaurant.js
  *
@@ -22,43 +22,44 @@ admin.initializeApp();
 const db = admin.firestore();
 
 const RESTAURANT_ID = process.env.RESTAURANT_ID || "demo";
-const RESTAURANT_SLUG = process.env.RESTAURANT_SLUG || "taco-monster";
+const RESTAURANT_SLUG = process.env.RESTAURANT_SLUG || "demo";
 const DOMAIN = process.env.DOMAIN || "";
 const OWNER_UID = process.env.OWNER_UID || "";
 
 const NO_IMAGE =
   "https://firebasestorage.googleapis.com/v0/b/tacomonster-a73fa.appspot.com/o/Products%2Fcoming-soon-photo.jpg?alt=media&token=c917b0d8-4f97-4824-9b07-ed51759c8b31";
 
+// A neutral demo restaurant: what prospects see behind "Try a live demo restaurant".
+// Contact details are placeholders (020 7946 0xxx is reserved for fiction by Ofcom).
 const restaurant = {
   slug: RESTAURANT_SLUG,
-  name: "Taco Monster",
+  name: "MenuDock Demo Kitchen",
   status: "active",
   contact: {
-    phone: "0207 1234 5678",
-    email: "hello@tacomonster.example",
-    instagram: "tacomonsteruk",
+    phone: "020 7946 0000",
+    email: "demo@menudock.example",
+    instagram: "",
   },
   address: {
-    line1: "644 Hertford Rd",
-    city: "Enfield",
-    postcode: "EN3 6LZ",
-    formatted: "Cloud kitchen, 644 Hertford Rd, Enfield EN3 6LZ",
+    line1: "1 Demo Street",
+    city: "London",
+    postcode: "E1 6AN",
+    formatted: "MenuDock Demo Kitchen, 1 Demo Street, London E1 6AN",
   },
   location: {
-    lat: 51.671335,
-    lng: -0.040751,
-    mapsEmbedUrl:
-      "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d4948.712907721025!2d-0.0417565!3d51.6716181!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761f49f9cd05d7%3A0xf86d6a1bdb3aa431!2sTaco%20Monster!5e0!3m2!1sen!2suk!4v1696160226658!5m2!1sen!2suk",
+    lat: 51.5202,
+    lng: -0.0779,
+    mapsEmbedUrl: "",
     placeId: "",
   },
   theme: {
     colors: {
-      primary: "#FF8C00",
-      secondary: "#FFC400",
+      primary: "#0E7C7B",
+      secondary: "#F2A33A",
       background: "#ffffff",
       text: "#0a0a0a",
-      accent: "#FF8C00",
-      navBar: "#333333",
+      accent: "#0E7C7B",
+      navBar: "#131C26",
       navBarText: "#ffffff",
     },
     fonts: {
@@ -72,13 +73,14 @@ const restaurant = {
   },
   ordering: {
     orderTypes: ["Collection", "Delivery"],
-    deliveryRadiusMiles: 2,
-    allowedPostcodePrefixes: ["EN1", "EN2", "EN3", "EN7", "EN8", "EN9"],
+    // The demo takes delivery orders from anywhere so prospects can try it.
+    deliveryRadiusMiles: 1000,
+    allowedPostcodePrefixes: [],
     minOrder: 0,
     freeDeliveryThreshold: 20,
     deliveryFee: 2.5,
     currency: "GBP",
-    collectionAddress: "Cloud kitchen, 644 Hertford Rd, Enfield EN3 6LZ",
+    collectionAddress: "MenuDock Demo Kitchen, 1 Demo Street, London E1 6AN",
   },
   payments: {
     provider: "stripe-connect",
