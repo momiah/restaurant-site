@@ -28,3 +28,6 @@ src/images/*.psd
 
 # Non-secret Cloud Functions params (see the file's header); secrets never go here.
 !functions/.env
+
+# Firebase CLI deploy cache
+.firebase/
