@@ -1,9 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import ItemDetails from "./ItemDetails";
+import ItemPhoto from "./ItemPhoto";
+import { useRestaurant } from "../../../restaurant/RestaurantContext";
+import { defaultTheme } from "../../../restaurant/defaultTheme";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
 const MenuItemExpanded = ({ item, onClose }) => {
+  const { restaurant } = useRestaurant();
+  const noImageUrl = restaurant?.theme?.noImageUrl || defaultTheme.noImageUrl;
   const handleContentClick = (e) => {
     e.stopPropagation();
   };
@@ -17,7 +22,7 @@ const MenuItemExpanded = ({ item, onClose }) => {
 
       {/* <CloseButton onClick={onClose}>X</CloseButton> */}
       <ItemContainer>
-        <ItemImage src={item.imageUrl} />
+        <ItemImage src={item.imageUrl} fallback={noImageUrl} alt={item.name} />
         <ItemDetails
           name={item.name}
           description={item.description}
@@ -35,11 +40,11 @@ const MenuItemExpanded = ({ item, onClose }) => {
 };
 
 const ItemContainer = styled.div({
+  width: "100%",
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
-  alignItems: "center",
-  height: "80%", // Changed to percentage-based value
+  alignItems: "flex-start",
   "@media (max-width: 767px)": {
     flexDirection: "column",
     height: "auto", // Adjust height for mobile view
@@ -81,12 +86,15 @@ const ContentContainer = styled.div({
   },
 });
 
-const ItemImage = styled.img({
+const ItemImage = styled(ItemPhoto)({
   marginRight: 10,
+  borderRadius: 16,
+  aspectRatio: "4 / 3",
+  objectFit: "cover",
+  flexShrink: 0,
   height: "auto", // Adjust height to maintain aspect ratio
   width: "100%", // Set width to 100% to fit container
   maxWidth: "300px", // Limit maximum width
-  objectFit: "contain", // Ensure image doesn't get cropped
   "@media (max-width: 480px)": {
     margin: "0", // Add margin for mobile view
   },
