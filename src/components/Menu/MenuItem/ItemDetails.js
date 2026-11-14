@@ -325,6 +325,9 @@ const DetailsContainer = styled.div({
   flexDirection: "column",
   justifyContent: "space-between",
   boxSizing: "border-box",
+  "@media (max-width: 1024px)": {
+    alignSelf: "stretch",
+  },
   "@media (max-width: 480px)": {
     width: "100%",
     flexDirection: "column",

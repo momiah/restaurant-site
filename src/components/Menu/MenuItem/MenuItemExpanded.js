@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import ItemDetails from "./ItemDetails";
 import ItemPhoto from "./ItemPhoto";
@@ -9,18 +9,18 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 const MenuItemExpanded = ({ item, onClose }) => {
   const { restaurant } = useRestaurant();
   const noImageUrl = restaurant?.theme?.noImageUrl || defaultTheme.noImageUrl;
+  useLockPageScroll();
   const handleContentClick = (e) => {
     e.stopPropagation();
   };
 
   return (
     <ContentContainer onClick={handleContentClick}>
-      <IoMdCloseCircleOutline
-        onClick={onClose}
-        style={{ position: "absolute", top: "10px", right: "10px",   fontSize: "2rem", color: '#949494' }}
-      />
+      {/* Sticky, so it stays reachable while the popup scrolls on phones. */}
+      <CloseButton type="button" onClick={onClose} aria-label="Close">
+        <IoMdCloseCircleOutline />
+      </CloseButton>
 
-      {/* <CloseButton onClick={onClose}>X</CloseButton> */}
       <ItemContainer>
         <ItemImage src={item.imageUrl} fallback={noImageUrl} alt={item.name} />
         <ItemDetails
@@ -39,12 +39,30 @@ const MenuItemExpanded = ({ item, onClose }) => {
   );
 };
 
+// While the popup is open, the page behind it mustn't scroll; swipes scroll the
+// popup instead. Pinning the body (position: fixed) is what works on iOS Safari,
+// where overflow: hidden on the body alone is ignored for touch scrolling.
+function useLockPageScroll() {
+  useEffect(() => {
+    const { body } = document;
+    const scrollY = window.scrollY;
+    const previous = { position: body.style.position, top: body.style.top, width: body.style.width, overflow: body.style.overflow };
+    Object.assign(body.style, { position: "fixed", top: `-${scrollY}px`, width: "100%", overflow: "hidden" });
+    return () => {
+      Object.assign(body.style, previous);
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+}
+
+// Photo and options side by side on desktop (photo centred vertically); stacked
+// on smaller screens (photo centred horizontally).
 const ItemContainer = styled.div({
   width: "100%",
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
-  alignItems: "flex-start",
+  alignItems: "center",
   "@media (max-width: 767px)": {
     flexDirection: "column",
     height: "auto", // Adjust height for mobile view
@@ -59,19 +77,43 @@ const ItemContainer = styled.div({
   },
 });
 
+const CloseButton = styled.button({
+  position: "sticky",
+  top: 0,
+  alignSelf: "flex-end",
+  zIndex: 2,
+  marginRight: 10,
+  marginBottom: -40,
+  width: 40,
+  height: 40,
+  padding: 0,
+  border: "none",
+  borderRadius: "50%",
+  background: "rgba(255, 255, 255, 0.9)",
+  color: "#949494",
+  fontSize: "2rem",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+});
+
 const ContentContainer = styled.div({
   backgroundColor: "white",
   padding: "10px 0px",
   display: "flex",
   flexDirection: "column", // Changed to column for consistent layout
-  justifyContent: "center",
+  justifyContent: "flex-start",
   alignItems: "center",
   borderRadius: "10px",
   position: "relative",
   width: "40%",
   margin: "5% auto",
   maxHeight: "90vh",
-  overflow: "auto",
+  overflowY: "auto",
+  overscrollBehavior: "contain",
+  WebkitOverflowScrolling: "touch",
+  "@supports (max-height: 90dvh)": { maxHeight: "90dvh" },
   "@media (max-width: 767px)": {
     width: "90%",
     padding: "10px 10px 20px",
@@ -87,6 +129,7 @@ const ContentContainer = styled.div({
 });
 
 const ItemImage = styled(ItemPhoto)({
+  alignSelf: "center",
   marginRight: 10,
   borderRadius: 16,
   aspectRatio: "4 / 3",

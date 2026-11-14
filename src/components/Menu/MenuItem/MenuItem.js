@@ -149,12 +149,10 @@ const ItemInfoContainer = styled.div({
 
 const ExpandedWrapper = styled.div({
   position: "fixed",
-  top: "0",
-  left: "0",
+  inset: 0,
   zIndex: 1000,
   backgroundColor: "rgba(0, 0, 0, 0.5)",
-  width: "100vw",
-  height: "100vh",
+  overscrollBehavior: "contain",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
