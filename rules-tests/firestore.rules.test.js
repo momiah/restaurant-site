@@ -129,6 +129,24 @@ describe("owner dashboard — delivery settings", () => {
   });
 });
 
+describe("Stripe onboarding secrets", () => {
+  it("no app can read or write a restaurant's onboarding link token — not even the owner or an admin client", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "stripeOnboarding", TACO), { accountId: "acct_1", token: "secret" });
+    });
+    for (const db of [anon(), user("rando"), tacoOwner(), admin()]) {
+      await assertFails(getDoc(doc(db, "stripeOnboarding", TACO)));
+      await assertFails(setDoc(doc(db, "stripeOnboarding", TACO), { accountId: "acct_attacker", token: "x" }));
+    }
+  });
+
+  it("an admin can go live, pause and set a restaurant's fees; an owner can't", async () => {
+    await assertSucceeds(updateDoc(doc(admin(), "restaurants", TACO), { status: "paused", "billing.platformFeePercent": 0, "billing.monthlyRetainer": 0, "billing.setupFee": 0 }));
+    await assertFails(updateDoc(doc(tacoOwner(), "restaurants", TACO), { status: "active" }));
+    await assertFails(updateDoc(doc(tacoOwner(), "restaurants", TACO), { "billing.monthlyRetainer": 1 }));
+  });
+});
+
 describe("owner dashboard — orders", () => {
   it("an owner can live-query their own restaurant's orders", async () => {
     const q = query(collection(tacoOwner(), "orders"), where("restaurantId", "==", TACO));

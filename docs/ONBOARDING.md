@@ -16,8 +16,13 @@ you set per client.
   - `firebase functions:secrets:set ANTHROPIC_API_KEY` — only for menu import (owners scan a
     photo/PDF/Word/Excel menu from the dashboard); deploy `functions:importMenu` once it's set
   - `firebase deploy` also asks for any of these that aren't set yet.
-- Platform fee: `PLATFORM_FEE_PERCENT` in `functions/.env` (default 5). A restaurant can
-  override it with `payments.applicationFeePercent` on its record.
+- Fees, in `functions/.env`. On every order MenuDock keeps:
+  - **Stripe costs**: `STRIPE_COVER_PERCENT` (default 1.75) of everything charged plus
+    `STRIPE_COVER_FIXED_PENCE` (default 20). Stripe takes its fees from MenuDock's account,
+    so every restaurant passes them on.
+  - **MenuDock's fee**: `PLATFORM_FEE_PERCENT` (default 5) of the food. Set a restaurant's own
+    rate (0 = Stripe costs only) in the admin console, under **Fees**
+    (`billing.platformFeePercent`).
 - Firestore + Storage rules deployed: `firebase deploy --only firestore:rules,storage`.
 - A **Stripe Connect** platform enabled on your Stripe account.
 
@@ -54,9 +59,10 @@ immediately — the website reads this subcollection directly.
 
 ### 3. Connect Stripe (payments)
 
-1. Send the client a Stripe Connect onboarding link (Express account).
-2. When they finish, copy their connected account id (`acct_…`).
-3. Put it on the record at `payments.stripeAccountId`.
+In the admin console, open the restaurant and click **Create Stripe account**. Copy the
+link and send it to the owner: it doesn't expire, and they finish Stripe's sign-up (ID
+and bank details) themselves. When they're done, the account id is saved on
+`payments.stripeAccountId` automatically (or click **Check Stripe**).
 
 Orders now route to the client's account via a destination charge, with your platform
 application fee deducted. Delivery is free above `ordering.freeDeliveryThreshold`; below it,
@@ -77,7 +83,10 @@ The website resolves which restaurant it is at boot:
 
 ### 5. Create the owner's dashboard login
 
-One command (from `functions/`, with a service-account key for the platform project):
+In the admin console, open the restaurant, enter the owner's email under **Owner login**
+and click **Create login**. Give them the email and the temporary password it shows.
+
+Or with one command (from `functions/`, with a service-account key for the platform project):
 
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json \

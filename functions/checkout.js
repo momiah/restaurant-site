@@ -23,17 +23,52 @@ class CheckoutError extends Error {
 }
 
 /**
- * MenuDock's fee on an order, in minor units (pence). A restaurant may override the
- * platform default with payments.applicationFeePercent.
+ * MenuDock's own fee percentage for a restaurant: its billing.platformFeePercent (set
+ * in the admin console), else the older payments.applicationFeePercent, else the
+ * platform default. 0 is a real value ("Stripe costs only"), not "use the default".
+ * @param {Object} restaurant Restaurant record.
+ * @param {number} platformFeePercent Default fee percentage.
+ * @return {number} Percentage (0 when none).
+ */
+function menuDockFeePercent(restaurant, platformFeePercent) {
+  const percent = Number((restaurant.billing && restaurant.billing.platformFeePercent) ??
+    (restaurant.payments && restaurant.payments.applicationFeePercent) ?? platformFeePercent ?? 0);
+  return Number.isFinite(percent) && percent > 0 ? percent : 0;
+}
+
+/**
+ * MenuDock's fee on an order (food subtotal only), in minor units (pence).
  * @param {number} subtotal Food subtotal in pounds.
  * @param {Object} restaurant Restaurant record.
  * @param {number} platformFeePercent Default fee percentage.
  * @return {number} Fee in pence (0 when none).
  */
 function applicationFeeAmount(subtotal, restaurant, platformFeePercent) {
-  const percent = Number((restaurant.payments && restaurant.payments.applicationFeePercent) ?? platformFeePercent ?? 0);
-  if (!percent || percent <= 0) return 0;
-  return Math.round(subtotal * (percent / 100) * 100);
+  return Math.round(subtotal * (menuDockFeePercent(restaurant, platformFeePercent) / 100) * 100);
+}
+
+/**
+ * Everything MenuDock keeps from one order, in pence. With destination charges Stripe
+ * takes its processing fee from the MenuDock account, so every restaurant pays a
+ * "Stripe costs" part (a percentage of everything charged, delivery included, plus a
+ * fixed amount per order) that passes those costs on, then MenuDock's own fee on the
+ * food on top. Never more than the order itself.
+ * @param {Object} args Order and fee settings.
+ * @param {number} args.subtotal Food subtotal in pounds.
+ * @param {number} args.deliveryPence Delivery charged, in pence.
+ * @param {Object} args.restaurant Restaurant record.
+ * @param {number} args.platformFeePercent Default MenuDock fee percentage.
+ * @param {{percent: number, fixedPence: number}} [args.stripeCover] Stripe cost pass-through.
+ * @return {{stripeCover: number, menuDock: number, total: number}} Fees in pence.
+ */
+function orderFees({subtotal, deliveryPence = 0, restaurant, platformFeePercent, stripeCover}) {
+  const chargedPence = Math.round(subtotal * 100) + deliveryPence;
+  const percent = Number((stripeCover && stripeCover.percent) || 0);
+  const fixed = Math.round(Number((stripeCover && stripeCover.fixedPence) || 0));
+  const cover = Math.max(0, Math.round(chargedPence * (percent / 100)) + Math.max(0, fixed));
+  const menuDock = applicationFeeAmount(subtotal, restaurant, platformFeePercent);
+  const total = Math.min(cover + menuDock, chargedPence);
+  return {stripeCover: Math.min(cover, total), menuDock: total - Math.min(cover, total), total};
 }
 
 /**
@@ -75,9 +110,12 @@ const clean = (value, max) => String(value || "").trim().slice(0, max);
  * @param {Object|null} deps.member Verified ID token of a signed-in loyalty member.
  * @param {string} deps.functionBaseUrl Public URL of the payments function.
  * @param {number} deps.platformFeePercent Default MenuDock fee.
+ * @param {{percent: number, fixedPence: number}} [deps.stripeCover] Stripe cost pass-through.
+ * @param {boolean} [deps.livemode] Whether the Stripe key is live (sk_live_); a
+ *   connected account made in the other mode is ignored rather than failing checkout.
  * @return {Promise<{id: string, url: string}>} The session to open.
  */
-async function createCheckout({db, stripe, body, origin, member, functionBaseUrl, platformFeePercent}) {
+async function createCheckout({db, stripe, body, origin, member, functionBaseUrl, platformFeePercent, stripeCover, livemode}) {
   const {restaurantId, orderType, appReturnUrl} = body;
   const customer = body.customer || {};
 
@@ -106,6 +144,10 @@ async function createCheckout({db, stripe, body, origin, member, functionBaseUrl
   const {lines, subtotal} = priced;
 
   const currency = ((restaurant.ordering && restaurant.ordering.currency) || "GBP").toLowerCase();
+  const shipping = shippingOptions(restaurant, orderType, subtotal, currency);
+  const deliveryPence = shipping.length === 0 ? 0 :
+    shipping[0].shipping_rate_data ? shipping[0].shipping_rate_data.fixed_amount.amount :
+    Math.round(Number((restaurant.ordering && restaurant.ordering.deliveryFee) || 0) * 100);
   const returnBase = `${functionBaseUrl}/checkout-return?session_id={CHECKOUT_SESSION_ID}&result=`;
   const params = {
     mode: "payment",
@@ -123,7 +165,7 @@ async function createCheckout({db, stripe, body, origin, member, functionBaseUrl
     })),
     success_url: fromApp ? `${returnBase}success` : `${origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: fromApp ? `${returnBase}cancel` : `${origin}/order-cancel/?session_id={CHECKOUT_SESSION_ID}`,
-    shipping_options: shippingOptions(restaurant, orderType, subtotal, currency),
+    shipping_options: shipping,
     allow_promotion_codes: true,
     // customerUid links the order to a loyalty member for points; it only ever comes
     // from a verified ID token, never from the request body.
@@ -133,16 +175,19 @@ async function createCheckout({db, stripe, body, origin, member, functionBaseUrl
 
   // Stripe Connect: pay the restaurant's connected account by destination charge,
   // keeping MenuDock's fee. Without an account yet, charge on the platform account.
-  const destination = restaurant.payments && restaurant.payments.stripeAccountId;
+  const payments = restaurant.payments || {};
+  const wrongMode = typeof livemode === "boolean" && typeof payments.stripeLivemode === "boolean" &&
+    payments.stripeLivemode !== livemode;
+  const destination = wrongMode ? null : payments.stripeAccountId;
+  const fees = orderFees({subtotal, deliveryPence, restaurant, platformFeePercent, stripeCover});
   if (destination) {
-    const fee = applicationFeeAmount(subtotal, restaurant, platformFeePercent);
     params.payment_intent_data = {
       transfer_data: {destination},
-      ...(fee > 0 ? {application_fee_amount: fee} : {}),
+      ...(fees.total > 0 ? {application_fee_amount: fees.total} : {}),
       metadata: {restaurantId: restaurant.id},
     };
   } else {
-    console.warn(`Restaurant ${restaurant.id} has no Stripe connected account; charging on the platform account.`);
+    console.warn(`Restaurant ${restaurant.id} has no ${wrongMode ? "Stripe account in this mode (test/live)" : "Stripe connected account"}; charging on the platform account.`);
   }
 
   const session = await stripe.checkout.sessions.create(params);
@@ -161,6 +206,10 @@ async function createCheckout({db, stripe, body, origin, member, functionBaseUrl
     notes: clean(customer.notes, 500),
     orderItems: lines,
     total: subtotal,
+    // What MenuDock keeps (only taken when paid out to the restaurant's own account).
+    fees: destination ?
+      {stripeCover: fees.stripeCover / 100, menuDock: fees.menuDock / 100, total: fees.total / 100} :
+      {stripeCover: 0, menuDock: 0, total: 0},
     source: fromApp ? "loyalty-app" : "website",
     ...(member ? {customerUid: member.uid} : {}),
     ...(fromApp ? {appReturnUrl} : {}),
@@ -187,4 +236,4 @@ async function appReturnRedirect(db, sessionId, result) {
   return `${target}${target.includes("?") ? "&" : "?"}orderId=${encodeURIComponent(sessionId)}&result=${outcome}`;
 }
 
-module.exports = {APP_RETURN_URL, CheckoutError, appReturnRedirect, applicationFeeAmount, createCheckout};
+module.exports = {APP_RETURN_URL, CheckoutError, appReturnRedirect, applicationFeeAmount, createCheckout, menuDockFeePercent, orderFees};
