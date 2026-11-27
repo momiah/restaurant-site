@@ -17,7 +17,7 @@ const Navbar = () => {
                     restaurant?.name || 'Menu'
                 )}
             </Brand>
-            <CartIcon size={30} isNavBar/>
+            <CartIcon size={30} isNavBar testId="cart-button" />
         </Nav>
     );
 };

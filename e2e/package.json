@@ -1,0 +1,16 @@
+{
+  "name": "menudock-website-e2e",
+  "private": true,
+  "description": "Customer journeys for the ordering website, run with Playwright against the Firebase emulators and a fake Stripe (never touches production or real Stripe).",
+  "scripts": {
+    "test": "node run.js",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "firebase": "^10.7.1",
+    "firebase-admin": "^11.8.0",
+    "firebase-tools": "^15.34.1",
+    "qs": "^6.17.0"
+  }
+}

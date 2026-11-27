@@ -35,10 +35,19 @@ const stripeCoverFixedPence = defineInt("STRIPE_COVER_FIXED_PENCE", {
   description: "Stripe costs passed on to the restaurant, as a fixed amount per order in pence.",
 });
 
+// The e2e tests (e2e/) point Stripe at a local fake. Only honoured inside the
+// Functions emulator, never in a deployed function.
+const emulatorStripeApi = () => {
+  const base = process.env.FUNCTIONS_EMULATOR === "true" && process.env.STRIPE_API_BASE;
+  if (!base) return undefined;
+  const url = new URL(base);
+  return {host: url.hostname, port: url.port, protocol: url.protocol.replace(":", "")};
+};
+
 // Secrets are only readable while a request is running, so create the client lazily.
 let stripeClient;
 const stripe = () => {
-  if (!stripeClient) stripeClient = require("stripe")(stripeSecretKey.value());
+  if (!stripeClient) stripeClient = require("stripe")(stripeSecretKey.value(), emulatorStripeApi());
   return stripeClient;
 };
 

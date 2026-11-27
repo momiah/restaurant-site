@@ -3,11 +3,11 @@ import { useCart } from './CartContext';
 import { FaShoppingCart } from 'react-icons/fa';
 import styled from 'styled-components';
 
-const CartIcon = ({ size, isNavBar }) => {
+const CartIcon = ({ size, isNavBar, testId }) => {
     const { cartItems, toggleCart } = useCart();
 
     return (
-        <IconContainer onClick={toggleCart}>
+        <IconContainer onClick={toggleCart} data-testid={testId}>
             <FaShoppingCart size={size} />
             {cartItems.length > 0 && isNavBar && <ItemCount>{cartItems.length}</ItemCount>}
         </IconContainer>
