@@ -94,6 +94,59 @@ describe("owner dashboard — restaurant details", () => {
   });
 });
 
+describe("owner dashboard — delivery settings", () => {
+  // Exactly what the tablet's Delivery settings screen writes.
+  const deliverySettings = {
+    "ordering.orderTypes": ["Collection", "Delivery"],
+    "ordering.deliveryFee": 3,
+    "ordering.freeDeliveryThreshold": 25,
+    "ordering.minOrder": 10,
+  };
+
+  it("an owner can set delivery on/off, fee, free-delivery threshold and minimum order on their own restaurant", async () => {
+    await assertSucceeds(updateDoc(doc(tacoOwner(), "restaurants", TACO), deliverySettings));
+    await assertSucceeds(updateDoc(doc(tacoOwner(), "restaurants", TACO), { "ordering.orderTypes": ["Collection"], "ordering.minOrder": 0 }));
+    let saved;
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      saved = (await getDoc(doc(ctx.firestore(), "restaurants", TACO))).data();
+    });
+    expect(saved.ordering).toEqual({ orderTypes: ["Collection"], deliveryFee: 3, freeDeliveryThreshold: 25, minOrder: 0 });
+  });
+  it("an owner cannot change another restaurant's delivery settings", async () => {
+    await assertFails(updateDoc(doc(tacoOwner(), "restaurants", NOODLE), deliverySettings));
+    await assertFails(updateDoc(doc(user("rando"), "restaurants", TACO), deliverySettings));
+    await assertFails(updateDoc(doc(anon(), "restaurants", TACO), deliverySettings));
+  });
+  it("saving delivery settings can't sneak in payments, billing, status or slug changes", async () => {
+    for (const extra of [
+      { "payments.stripeAccountId": "acct_attacker" },
+      { "billing.platformFeePercent": 0 },
+      { status: "paused" },
+      { slug: "someone-else" },
+    ]) {
+      await assertFails(updateDoc(doc(tacoOwner(), "restaurants", TACO), { ...deliverySettings, ...extra }));
+    }
+  });
+});
+
+describe("Stripe onboarding secrets", () => {
+  it("no app can read or write a restaurant's onboarding link token — not even the owner or an admin client", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "stripeOnboarding", TACO), { accountId: "acct_1", token: "secret" });
+    });
+    for (const db of [anon(), user("rando"), tacoOwner(), admin()]) {
+      await assertFails(getDoc(doc(db, "stripeOnboarding", TACO)));
+      await assertFails(setDoc(doc(db, "stripeOnboarding", TACO), { accountId: "acct_attacker", token: "x" }));
+    }
+  });
+
+  it("an admin can go live, pause and set a restaurant's fees; an owner can't", async () => {
+    await assertSucceeds(updateDoc(doc(admin(), "restaurants", TACO), { status: "paused", "billing.platformFeePercent": 0, "billing.monthlyRetainer": 0, "billing.setupFee": 0 }));
+    await assertFails(updateDoc(doc(tacoOwner(), "restaurants", TACO), { status: "active" }));
+    await assertFails(updateDoc(doc(tacoOwner(), "restaurants", TACO), { "billing.monthlyRetainer": 1 }));
+  });
+});
+
 describe("owner dashboard — orders", () => {
   it("an owner can live-query their own restaurant's orders", async () => {
     const q = query(collection(tacoOwner(), "orders"), where("restaurantId", "==", TACO));

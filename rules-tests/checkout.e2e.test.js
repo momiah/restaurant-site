@@ -110,3 +110,36 @@ it("closed restaurants and unknown restaurants can't take orders", async () => {
   await expect(base({ cartItems: [{ name: "Burrito", quantity: 1 }] })).rejects.toThrow(/not currently accepting orders/);
   await expect(base({ restaurantId: "nope", cartItems: [] })).rejects.toThrow(/Unknown/);
 });
+
+describe("fees", () => {
+  const cover = { stripeCover: { percent: 1.75, fixedPence: 20 } };
+  const delivery = {
+    orderType: "Delivery",
+    cartItems: [{ name: "Burrito", quantity: 1 }], // £6.50, under the £20 threshold → £2.50 delivery
+    customer: { name: "Ann", contactNumber: "07700900123", address: "1 High St", postCode: "E1 6AN" },
+  };
+
+  it("passes Stripe's costs on (delivery included) plus MenuDock's fee, and records both on the order", async () => {
+    const res = await base(delivery, cover);
+    const params = stripe.checkout.sessions.create.mock.calls[0][0];
+    // 900p charged: 1.75% = 15.75 → 16p + 20p = 36p; MenuDock 5% of £6.50 = 33p (32.5 rounds up)
+    expect(params.payment_intent_data.application_fee_amount).toBe(36 + 33);
+    expect((await db.doc(`orders/${res.id}`).get()).data().fees).toEqual({ stripeCover: 0.36, menuDock: 0.33, total: 0.69 });
+  });
+
+  it("a restaurant on 'Stripe costs only' (MenuDock fee 0%) pays just Stripe's costs", async () => {
+    await db.doc(`restaurants/${TACO}`).set({ billing: { platformFeePercent: 0 } }, { merge: true });
+    await base(delivery, cover);
+    expect(stripe.checkout.sessions.create.mock.calls[0][0].payment_intent_data.application_fee_amount).toBe(36);
+  });
+
+  it("ignores a Stripe account made in test mode once the key is live (and vice versa)", async () => {
+    await db.doc(`restaurants/${TACO}`).set({ payments: { stripeLivemode: false } }, { merge: true });
+    const res = await base({ cartItems: [{ name: "Burrito", quantity: 1 }] }, { ...cover, livemode: true });
+    expect(stripe.checkout.sessions.create.mock.calls[0][0].payment_intent_data).toBeUndefined();
+    expect((await db.doc(`orders/${res.id}`).get()).data().fees.total).toBe(0);
+
+    await base({ cartItems: [{ name: "Burrito", quantity: 1 }] }, { ...cover, livemode: false });
+    expect(stripe.checkout.sessions.create.mock.calls[1][0].payment_intent_data.transfer_data).toEqual({ destination: "acct_taco" });
+  });
+});
